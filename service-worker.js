@@ -1,7 +1,7 @@
 const CACHE_NAME = "hematology-counter-cache-v1";
 
 const urlsToCache = [
-  "hematologycounter.html",
+  "index.html",
   "wbc_counter.html",
   "retic_counter.html",
   "platelet_counter.html",
