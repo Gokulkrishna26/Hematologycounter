@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cell Counter PWA</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .topbar {
+      background-color: #007bff;
+      color: white;
+      padding: 15px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .menu-icon {
+      font-size: 24px;
+      margin-right: 15px;
+      cursor: pointer;
+    }
+
+    .sidemenu {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: #f8f9fa;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+    }
+
+    .sidemenu a {
+      padding: 10px 25px;
+      text-decoration: none;
+      font-size: 18px;
+      color: #333;
+      display: block;
+      transition: 0.2s;
+    }
+
+    .sidemenu a:hover {
+      background-color: #ddd;
+    }
+
+    .main-content {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .closebtn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 30px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="menu-icon" onclick="openMenu()">&#9776;</span>
+  Cell Counter
+</div>
+
+<!-- Side Menu -->
+<div id="sideMenu" class="sidemenu">
+  <span class="closebtn" onclick="closeMenu()">&times;</span>
+  <a href="wbc_counter.html">1) WBC Differential</a>
+  <a href="bone_marrow.html">2) Bone Marrow Counter</a>
+  <a href="platelet_counter.html">3) Platelet Counter</a>
+  <a href="retic_counter.html">4) Retic Counter</a>
+</div>
+
+<div class="main-content">
+  <h2>Welcome to Hematology Cell Counter</h2>
+  <p>Select a counter from the menu.</p>
+</div>
+
+<script>
+  function openMenu() {
+    document.getElementById("sideMenu").style.width = "250px";
+  }
+
+  function closeMenu() {
+    document.getElementById("sideMenu").style.width = "0";
+  }
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("Service Worker registered successfully."))
+      .catch(error => console.error("Service Worker registration failed:", error));
+  }
+</script>
+
+</body>
+</html>
