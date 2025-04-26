@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#007bff" />
   <title>Cell Counter PWA</title>
+  <link rel="manifest" href="/manifest.json">
   <style>
     body {
       margin: 0;
@@ -68,13 +70,13 @@
 <body>
 
 <div class="topbar">
-  <span class="menu-icon" onclick="openMenu()">&#9776;</span>
+  <span class="menu-icon" onclick="openMenu()">☰</span>
   Cell Counter
 </div>
 
 <!-- Side Menu -->
 <div id="sideMenu" class="sidemenu">
-  <span class="closebtn" onclick="closeMenu()">&times;</span>
+  <span class="closebtn" onclick="closeMenu()">×</span>
   <a href="wbc_counter.html">1) WBC Differential</a>
   <a href="bone_marrow.html">2) Bone Marrow Counter</a>
   <a href="platelet_counter.html">3) Platelet Counter</a>
@@ -94,13 +96,14 @@
   function closeMenu() {
     document.getElementById("sideMenu").style.width = "0";
   }
-</script>
 
-<script>
+  // Ensure service worker registration after page load
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("Service Worker registered successfully."))
-      .catch(error => console.error("Service Worker registration failed:", error));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log("Service Worker registered successfully."))
+        .catch(error => console.error("Service Worker registration failed:", error));
+    });
   }
 </script>
 
