@@ -1,40 +1,40 @@
 const CACHE_NAME = "hematology-counter-cache-v3";
 
 const urlsToCache = [
-  "./index.html",
-  "./wbc_counter.html",
-  "./retic_counter.html",
-  "./platelet_counter.html",
-  "./bone_marrow.html",
-  "./manifest.json",
-  "./offline.html",
-  "./style.css",
-  "./app.js",
-  "./images/neutrophil.png",
-  "./images/lymphocyte.png",
-  "./images/monocyte.png",
-  "./images/basophil.png",
-  "./images/eosinophil.png",
-  "./images/blast.png",
-  "./images/myeloblast.png",
-  "./images/promyelocyte.png",
-  "./images/myelocyte.png",
-  "./images/metamyelocyte.png",
-  "./images/bandform.png",
-  "./images/erythroblast.png",
-  "./images/dyserythroblast.png",
-  "./images/monoblast.png",
-  "./images/plasmacell.png",
-  "./images/megakaryoblast.png",
-  "./images/megakaryocyte.png",
-  "./images/others.png",
-  "./images/platelet.png",
-  "./images/reticulocyte.png",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "/index.html",
+  "/wbc_counter.html",
+  "/retic_counter.html",
+  "/platelet_counter.html",
+  "/bone_marrow.html",
+  "/manifest.json",
+  "/offline.html",
+  "/style.css",
+  "/app.js",
+  "/images/neutrophil.png",
+  "/images/lymphocyte.png",
+  "/images/monocyte.png",
+  "/images/basophil.png",
+  "/images/eosinophil.png",
+  "/images/blast.png",
+  "/images/myeloblast.png",
+  "/images/promyelocyte.png",
+  "/images/myelocyte.png",
+  "/images/metamyelocyte.png",
+  "/images/bandform.png",
+  "/images/erythroblast.png",
+  "/images/dyserythroblast.png",
+  "/images/monoblast.png",
+  "/images/plasmacell.png",
+  "/images/megakaryoblast.png",
+  "/images/megakaryocyte.png",
+  "/images/others.png",
+  "/images/platelet.png",
+  "/images/reticulocyte.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png"
 ];
 
-// Install event: cache files
+// Install event
 self.addEventListener("install", event => {
   self.skipWaiting();
   event.waitUntil(
@@ -45,7 +45,7 @@ self.addEventListener("install", event => {
   );
 });
 
-// Activate event: remove old caches
+// Activate event
 self.addEventListener("activate", event => {
   clients.claim();
   event.waitUntil(
@@ -58,18 +58,18 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Fetch event: serve from cache first
+// Fetch event
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return; // Don't cache POST, etc.
+  if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).catch(() => {
+        // Only fallback to offline.html for page navigations
+        if (event.request.mode === 'navigate') {
+          return caches.match("/offline.html");
         }
-        return fetch(event.request)
-          .catch(() => caches.match("./offline.html")); // Offline fallback
-      })
+      });
+    })
   );
 });
