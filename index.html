@@ -6,34 +6,26 @@
   <meta name="theme-color" content="#007bff" />
   <title>Cell Counter PWA</title>
   <link rel="manifest" href="/manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background-color: #f4f7fc;
-      transition: all 0.3s ease;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden; /* Prevents horizontal scrolling */
     }
 
     .topbar {
       background-color: #007bff;
       color: white;
-      padding: 20px 15px;
-      font-size: 22px;
+      padding: 15px;
+      font-size: 20px;
       display: flex;
       align-items: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .menu-icon {
-      font-size: 26px;
-      margin-right: 20px;
+      font-size: 24px;
+      margin-right: 15px;
       cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .menu-icon:hover {
-      transform: scale(1.2);
     }
 
     .sidemenu {
@@ -45,30 +37,28 @@
       left: 0;
       background-color: rgba(0, 0, 0, 0.6);
       overflow-x: hidden;
-      transition: 0.3s;
       padding-top: 60px;
       backdrop-filter: blur(10px);
+      transition: none; /* Remove transition to avoid decompress effect */
     }
 
     .sidemenu a {
       padding: 15px 30px;
       text-decoration: none;
-      font-size: 20px;
+      font-size: 18px;
       color: white;
       display: block;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      border-bottom: 1px solid #ddd;
+      transition: 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .sidemenu a:hover {
       background-color: #007bff;
-      transform: translateX(10px);
     }
 
     .main-content {
       padding: 20px;
       text-align: center;
-      transition: all 0.3s ease;
     }
 
     .closebtn {
@@ -76,13 +66,25 @@
       top: 10px;
       right: 20px;
       font-size: 30px;
-      color: white;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      color: white;
     }
 
-    .closebtn:hover {
-      transform: rotate(90deg);
+    /* Adding smooth animation for sliding in and out */
+    .sidemenu a {
+      opacity: 0;
+      animation: slideIn 0.3s forwards;
+    }
+
+    @keyframes slideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
   </style>
 </head>
@@ -109,15 +111,16 @@
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").style.width = "250px";
-    document.body.style.overflow = "hidden";
+    document.getElementById("sideMenu").style.width = "250px"; // Instantly open
+    document.body.style.overflow = "hidden";  // Prevent scroll when menu is open
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").style.width = "0";
-    document.body.style.overflow = "auto";
+    document.getElementById("sideMenu").style.width = "0";  // Instantly close
+    document.body.style.overflow = "auto";  // Restore scroll when menu is closed
   }
 
+  // Ensure service worker registration after page load
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/service-worker.js')
