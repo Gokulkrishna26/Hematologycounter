@@ -156,7 +156,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script>
+<<script>
+  // Animate the count change for smooth visual effect
+  function animateCount(element, newCount) {
+    let currentCount = parseInt(element.innerText);
+    let step = (newCount - currentCount) / 20;
+
+    let interval = setInterval(() => {
+      currentCount += step;
+      if (Math.abs(newCount - currentCount) < Math.abs(step)) {
+        element.innerText = newCount;
+        clearInterval(interval);
+      } else {
+        element.innerText = Math.round(currentCount);
+      }
+    }, 50);
+  }
+
   const cellTypes = {
     erythroblast: "Erythroblast",
     dyserythroblast: "Dyserythroblast",
@@ -202,9 +218,10 @@
       return;
     }
     const el = document.getElementById(cellType);
-    el.innerText = parseInt(el.innerText) + 1;
+    const currentCount = parseInt(el.innerText);
+    animateCount(el, currentCount + 1); // Apply animated count
     document.getElementById('totalCount').innerText = getTotalCount();
-    hapticFeedback(); // Trigger haptic feedback on cell press
+    hapticFeedback(); // Trigger haptic feedback
   }
 
   function hapticFeedback() {
@@ -287,6 +304,5 @@
     createCounters();
   };
 </script>
-
 </body>
 </html>
