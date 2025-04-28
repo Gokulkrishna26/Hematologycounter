@@ -130,65 +130,46 @@
   <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
 </div>
 
+<!-- Global Progress Bar -->
+<div class="progress-bar-container">
+  <div id="totalProgress" class="progress-bar">0%</div>
+</div>
+
 <div class="counter-grid">
   <!-- Neutrophils -->
   <div class="cell-counter">
     <img src="images/neutrophil.png" alt="Neutrophil" onclick="increment('neutrophils')" class="cell-image">
     <p>Neutrophils: <span id="neutrophils">0</span></p>
-    <div class="progress-bar-container">
-      <div id="neutrophilProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 40–75%</div>
   </div>
 
   <!-- Lymphocytes -->
   <div class="cell-counter">
     <img src="images/lymphocyte.png" alt="Lymphocyte" onclick="increment('lymphocytes')" class="cell-image">
     <p>Lymphocytes: <span id="lymphocytes">0</span></p>
-    <div class="progress-bar-container">
-      <div id="lymphocyteProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 20–45%</div>
   </div>
 
   <!-- Blasts -->
   <div class="cell-counter">
     <img src="images/blast.png" alt="Blasts" onclick="increment('blasts')" class="cell-image">
     <p>Blasts: <span id="blasts">0</span></p>
-    <div class="progress-bar-container">
-      <div id="blastProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 0%</div>
   </div>
 
   <!-- Eosinophils -->
   <div class="cell-counter">
     <img src="images/eosinophil.png" alt="Eosinophil" onclick="increment('eosinophils')" class="cell-image">
     <p>Eosinophils: <span id="eosinophils">0</span></p>
-    <div class="progress-bar-container">
-      <div id="eosinophilProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 1–6%</div>
   </div>
 
   <!-- Basophils -->
   <div class="cell-counter">
     <img src="images/basophil.png" alt="Basophil" onclick="increment('basophils')" class="cell-image">
     <p>Basophils: <span id="basophils">0</span></p>
-    <div class="progress-bar-container">
-      <div id="basophilProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 0–1%</div>
   </div>
 
   <!-- Monocytes -->
   <div class="cell-counter">
     <img src="images/monocyte.png" alt="Monocyte" onclick="increment('monocytes')" class="cell-image">
     <p>Monocytes: <span id="monocytes">0</span></p>
-    <div class="progress-bar-container">
-      <div id="monocyteProgress" class="progress-bar">0%</div>
-    </div>
-    <div class="normal-range">Normal: 2–10%</div>
   </div>
 </div>
 
@@ -216,15 +197,14 @@
     }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
-    updateProgress(cellType);
+    updateProgress();
   }
 
-  function updateProgress(cellType) {
+  function updateProgress() {
     const total = getTotalCount();
-    const count = parseInt(document.getElementById(cellType).innerText);
-    const percent = (count / total) * 100;
-    document.getElementById(`${cellType}Progress`).style.width = `${percent}%`;
-    document.getElementById(`${cellType}Progress`).innerText = `${percent.toFixed(2)}%`;
+    const progress = (total / 100) * 100;
+    document.getElementById('totalProgress').style.width = `${progress}%`;
+    document.getElementById('totalProgress').innerText = `${progress.toFixed(2)}%`;
   }
 
   function getTotalCount() {
@@ -236,9 +216,8 @@
   function resetCounts() {
     cellTypes.forEach(cell => {
       document.getElementById(cell).innerText = '0';
-      document.getElementById(`${cell}Progress`).style.width = '0%';
-      document.getElementById(`${cell}Progress`).innerText = '0%';
     });
+    updateProgress();
     document.getElementById('results').innerHTML = '';
   }
 
@@ -266,4 +245,17 @@
     cellTypes.forEach(cell => {
       const count = parseInt(document.getElementById(cell).innerText);
       const percent = ((count / getTotalCount()) * 100).toFixed(2);
-      doc.text(`${cell.charAt(0).to
+      doc.text(`${cell.charAt(0).toUpperCase() + cell.slice(1)}: ${count} (${percent}%)`, 10, y);
+      y += 10;
+    });
+    doc.save('wbc_count.pdf');
+  }
+
+  function toggleNormalValues() {
+    const normalValues = document.querySelector('.normal-values');
+    normalValues.style.display = (normalValues.style.display === 'none' || normalValues.style.display === '') ? 'block' : 'none';
+  }
+</script>
+
+</body>
+</html>
