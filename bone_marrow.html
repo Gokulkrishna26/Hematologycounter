@@ -189,17 +189,17 @@
       }
     }
 
-    function increment(cellType) {
-      const total = getTotalCount();
-      if (total >= 500) {
-        alert("You have reached the total limit of 500 cells.");
-        return;
-      }
-      const el = document.getElementById(cellType);
-      el.innerText = parseInt(el.innerText) + 1;
-      document.getElementById('totalCount').innerText = getTotalCount();
-      triggerHapticFeedback();
-    }
+  function increment(cellType) {
+  const total = getTotalCount();
+  if (total >= 500) {
+    alert("You have reached the total limit of 500 cells.");
+    return;
+  }
+  const el = document.getElementById(cellType);
+  el.innerText = parseInt(el.innerText) + 1;
+  document.getElementById('totalCount').innerText = getTotalCount();
+  triggerHapticFeedback();  // Add this line
+}
 
     function getTotalCount() {
       return Object.keys(cellTypes).reduce((sum, cell) => {
