@@ -189,18 +189,20 @@
       }
     }
 
-  function increment(cellType) {
-  const total = getTotalCount();
-  if (total >= 500) {
-    alert("You have reached the total limit of 500 cells.");
-    return;
-  }
-  const el = document.getElementById(cellType);
-  el.innerText = parseInt(el.innerText) + 1;
-  document.getElementById('totalCount').innerText = getTotalCount();
-  if ('vibrate' in navigator) {
-    navigator.vibrate(50); // Adjust the vibration intensity/duration if necessary
-  }
+let debounceTimer;
+function increment(cellType) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const total = getTotalCount();
+        if (total >= 500) {
+            alert("You have reached the total limit of 500 cells.");
+            return;
+        }
+        const el = document.getElementById(cellType);
+        el.innerText = parseInt(el.innerText) + 1;
+        document.getElementById('totalCount').innerText = getTotalCount();
+        vibrate();  // Add this to trigger haptic feedback
+    }, 300); // Prevents multiple fast presses
 }
 
     function getTotalCount() {
