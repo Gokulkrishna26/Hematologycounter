@@ -11,6 +11,7 @@
       margin: 0;
       font-family: Arial, sans-serif;
       overflow-x: hidden;
+      transition: background 0.3s ease;
     }
 
     .topbar {
@@ -35,10 +36,10 @@
       z-index: 1;
       top: 0;
       left: 0;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.5);
       overflow-x: hidden;
       padding-top: 60px;
-      transition: width 0.5s ease; /* Smooth sliding effect */
+      transition: width 0.5s ease;
     }
 
     .sidemenu a {
@@ -58,6 +59,7 @@
     .main-content {
       padding: 20px;
       text-align: center;
+      transition: filter 0.3s ease;
     }
 
     .closebtn {
@@ -67,6 +69,11 @@
       font-size: 30px;
       cursor: pointer;
       color: white;
+    }
+
+    /* Blur effect for the background when the menu is open */
+    body.menu-open {
+      filter: blur(4px);
     }
   </style>
 </head>
@@ -93,13 +100,13 @@
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").style.width = "250px"; // Smoothly open the side menu
-    document.body.style.overflow = "hidden";  // Prevent scrolling when menu is open
+    document.getElementById("sideMenu").style.width = "250px"; // Slide in side menu
+    document.body.classList.add('menu-open');  // Add blur effect to background
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").style.width = "0";  // Close the side menu
-    document.body.style.overflow = "auto";  // Enable scrolling when menu is closed
+    document.getElementById("sideMenu").style.width = "0"; // Slide out side menu
+    document.body.classList.remove('menu-open'); // Remove blur effect
   }
 
   // Ensure service worker registration after page load
