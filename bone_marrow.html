@@ -121,52 +121,50 @@
         width: 100%;
         margin: 5px 0;
       }
-      
       html, body {
-        touch-action: manipulation; /* Prevent zoom on touch actions */
-      }
+  touch-action: manipulation; /* Prevent zoom on touch actions */
+}
     }
 
     /* Progress Bar */
-    .progress-container {
+    #progressBarContainer {
       width: 100%;
+      background-color: #f3f3f3;
       height: 20px;
-      background: #ddd;
       border-radius: 10px;
-      margin-top: 20px;
+      position: relative;
     }
 
-    .progress-bar {
+    #progressBar {
       height: 100%;
-      width: 0;
-      border-radius: 10px;
-      transition: width 0.3s ease;
-    }
-
-    .progress-bar.green {
+      width: 0%;
       background-color: green;
+      border-radius: 10px;
+      transition: width 0.5s ease;
     }
 
-    .progress-bar.yellow {
-      background-color: yellow;
-    }
-
-    .progress-bar.red {
-      background-color: red;
+    #progressText {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-weight: bold;
     }
   </style>
 </head>
-  <body>
+
+<body>
 
 <h2>Bone Marrow Counter</h2>
 <p><strong>Counting Limit: 500 cells</strong></p>
 <p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 500</p>
 
 <!-- Progress Bar -->
-<div id="progressBarContainer" style="width: 100%; background-color: #f3f3f3; height: 20px; border-radius: 10px;">
-  <div id="progressBar" style="height: 100%; width: 0%; background-color: green; border-radius: 10px;"></div>
+<div id="progressBarContainer">
+  <div id="progressBar"></div>
+  <span id="progressText">0%</span>
 </div>
-<p id="progressText">Progress: 0%</p>
 
 <div class="button-row">
   <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
@@ -210,12 +208,12 @@
     megakaryoblast: "Megakaryoblast",
     megakaryocyte: "Megakaryocyte",
     others: "Others"
-};
+  };
 
-const erythroidCells = ['erythroblast', 'dyserythroblast'];
-const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
+  const erythroidCells = ['erythroblast', 'dyserythroblast'];
+  const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
-function createCounters() {
+  function createCounters() {
     const grid = document.getElementById("counterGrid");
     for (const key in cellTypes) {
         const cellName = cellTypes[key];
@@ -228,9 +226,9 @@ function createCounters() {
       `;
         grid.appendChild(div);
     }
-}
+  }
 
-function increment(cellType) {
+  function increment(cellType) {
     const total = getTotalCount();
     if (total >= 500) {
         alert("You have reached the total limit of 500 cells.");
@@ -239,51 +237,32 @@ function increment(cellType) {
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
     document.getElementById('totalCount').innerText = getTotalCount();
-    updateProgressBar();
+    updateProgressBar(); // Update progress bar
     hapticFeedback(); // Trigger haptic feedback on cell press
-}
+  }
 
-function hapticFeedback() {
+  function hapticFeedback() {
     if (navigator.vibrate) {
         navigator.vibrate(50); // Short vibration
     }
-}
+  }
 
-function getTotalCount() {
+  function getTotalCount() {
     return Object.keys(cellTypes).reduce((sum, cell) => {
         return sum + parseInt(document.getElementById(cell).innerText);
     }, 0);
-}
+  }
 
-function resetCounts() {
+  function resetCounts() {
     for (const cell in cellTypes) {
         document.getElementById(cell).innerText = '0';
     }
     document.getElementById('results').innerHTML = '';
     document.getElementById('totalCount').innerText = '0';
-    updateProgressBar();
-}
+    updateProgressBar(); // Reset progress bar
+  }
 
-function updateProgressBar() {
-    const total = getTotalCount();
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const percentage = (total / 500) * 100;
-
-    progressBar.style.width = `${percentage}%`;
-
-    if (percentage <= 33) {
-        progressBar.style.backgroundColor = 'green';
-    } else if (percentage <= 66) {
-        progressBar.style.backgroundColor = 'yellow';
-    } else {
-        progressBar.style.backgroundColor = 'red';
-    }
-
-    progressText.innerText = `Progress: ${percentage.toFixed(0)}%`;
-}
-
-function calculatePercentages() {
+  function calculatePercentages() {
     const total = getTotalCount();
     if (total === 0) {
         alert("No cells counted.");
@@ -311,9 +290,9 @@ function calculatePercentages() {
     resultHTML += `<p><strong>Normal M:E Ratio:</strong> 2:1 to 4:1</p>`;
 
     document.getElementById('results').innerHTML = resultHTML;
-}
+  }
 
-function exportToPDF() {
+  function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.text("Bone Marrow Differential (Normalized to 100%)", 10, 10);
@@ -337,12 +316,30 @@ function exportToPDF() {
     doc.text("Normal M:E Ratio: 2:1 to 4:1", 10, y);
     
     doc.save("bone_marrow_report.pdf");
-}
+  }
 
-window.onload = function () {
+  function updateProgressBar() {
+    const total = getTotalCount();
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const percentage = (total / 500) * 100;
+
+    progressBar.style.width = `${percentage}%`;
+
+    if (percentage <= 33) {
+        progressBar.style.backgroundColor = 'green';
+    } else if (percentage <= 66) {
+        progressBar.style.backgroundColor = 'yellow';
+    } else {
+        progressBar.style.backgroundColor = 'red';
+    }
+
+    progressText.innerText = `${percentage.toFixed(0)}%`;
+  }
+
+  window.onload = function () {
     createCounters();
-    updateProgressBar();
-};
+  };
 </script>
 </body>
 </html>
