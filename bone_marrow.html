@@ -157,22 +157,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <<script>
-  // Animate the count change for smooth visual effect
-  function animateCount(element, newCount) {
-    let currentCount = parseInt(element.innerText);
-    let step = (newCount - currentCount) / 20;
-
-    let interval = setInterval(() => {
-      currentCount += step;
-      if (Math.abs(newCount - currentCount) < Math.abs(step)) {
-        element.innerText = newCount;
-        clearInterval(interval);
-      } else {
-        element.innerText = Math.round(currentCount);
-      }
-    }, 50);
-  }
-
   const cellTypes = {
     erythroblast: "Erythroblast",
     dyserythroblast: "Dyserythroblast",
@@ -191,64 +175,63 @@
     megakaryoblast: "Megakaryoblast",
     megakaryocyte: "Megakaryocyte",
     others: "Others"
-  };
+};
 
-  const erythroidCells = ['erythroblast', 'dyserythroblast'];
-  const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
+const erythroidCells = ['erythroblast', 'dyserythroblast'];
+const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
-  function createCounters() {
+function createCounters() {
     const grid = document.getElementById("counterGrid");
     for (const key in cellTypes) {
-      const cellName = cellTypes[key];
-      const div = document.createElement("div");
-      div.className = "cell-counter";
-      div.innerHTML = `
+        const cellName = cellTypes[key];
+        const div = document.createElement("div");
+        div.className = "cell-counter";
+        div.innerHTML = `
         <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" class="cell-image">
         <p>${cellName}: <span id="${key}">0</span></p>
         <div class="normal-range">Normal range not defined</div>
       `;
-      grid.appendChild(div);
+        grid.appendChild(div);
     }
-  }
+}
 
-  function increment(cellType) {
+function increment(cellType) {
     const total = getTotalCount();
     if (total >= 500) {
-      alert("You have reached the total limit of 500 cells.");
-      return;
+        alert("You have reached the total limit of 500 cells.");
+        return;
     }
     const el = document.getElementById(cellType);
-    const currentCount = parseInt(el.innerText);
-    animateCount(el, currentCount + 1); // Apply animated count
+    el.innerText = parseInt(el.innerText) + 1;
     document.getElementById('totalCount').innerText = getTotalCount();
-    hapticFeedback(); // Trigger haptic feedback
-  }
+    hapticFeedback(); // Trigger haptic feedback on cell press
+}
 
-  function hapticFeedback() {
+function hapticFeedback() {
     if (navigator.vibrate) {
-      navigator.vibrate(50); // Short vibration
+        navigator.vibrate(50); // Short vibration
     }
-  }
+}
 
-  function getTotalCount() {
+function getTotalCount() {
     return Object.keys(cellTypes).reduce((sum, cell) => {
-      return sum + parseInt(document.getElementById(cell).innerText);
+        return sum + parseInt(document.getElementById(cell).innerText);
     }, 0);
-  }
+}
 
-  function resetCounts() {
+function resetCounts() {
     for (const cell in cellTypes) {
-      document.getElementById(cell).innerText = '0';
+        document.getElementById(cell).innerText = '0';
     }
     document.getElementById('results').innerHTML = '';
     document.getElementById('totalCount').innerText = '0';
-  }
+}
 
-  function calculatePercentages() {
+function calculatePercentages() {
     const total = getTotalCount();
     if (total === 0) {
-      alert("No cells counted.");
-      return;
+        alert("No cells counted.");
+        return;
     }
 
     let resultHTML = "<h3>Bone Marrow Differential (Normalized to 100%)</h3>";
@@ -258,11 +241,11 @@
     let myeloidCount = 0;
 
     for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
-      if (erythroidCells.includes(cell)) erythroidCount += count;
-      if (myeloidCells.includes(cell)) myeloidCount += count;
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+        if (erythroidCells.includes(cell)) erythroidCount += count;
+        if (myeloidCells.includes(cell)) myeloidCount += count;
     }
 
     resultHTML += "</table><br>";
@@ -272,9 +255,9 @@
     resultHTML += `<p><strong>Normal M:E Ratio:</strong> 2:1 to 4:1</p>`;
 
     document.getElementById('results').innerHTML = resultHTML;
-  }
+}
 
-  function exportToPDF() {
+function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.text("Bone Marrow Differential (Normalized to 100%)", 10, 10);
@@ -284,12 +267,12 @@
     let erythroid = 0, myeloid = 0;
 
     for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
-      y += 10;
-      if (erythroidCells.includes(cell)) erythroid += count;
-      if (myeloidCells.includes(cell)) myeloid += count;
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+        y += 10;
+        if (erythroidCells.includes(cell)) erythroid += count;
+        if (myeloidCells.includes(cell)) myeloid += count;
     }
 
     const ratio = erythroid === 0 ? "∞" : (myeloid / erythroid).toFixed(2);
@@ -298,11 +281,10 @@
     doc.text("Normal M:E Ratio: 2:1 to 4:1", 10, y);
     
     doc.save("bone_marrow_report.pdf");
-  }
+}
 
-  window.onload = function () {
+window.onload = function () {
     createCounters();
-  };
-</script>
+};</script>
 </body>
 </html>
