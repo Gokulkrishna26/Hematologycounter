@@ -121,181 +121,180 @@
 </head>
   
 <body>
+  <h2>Bone Marrow Counter</h2>
+  <p><strong>Counting Limit: 500 cells</strong></p>
+  <p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 500</p>
 
-<h2>Bone Marrow Counter</h2>
-<p><strong>Counting Limit: 500 cells</strong></p>
+  <div class="button-row">
+    <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
+  </div>
 
-<div class="progress-container">
-  <div class="progress-bar" id="progressBar">0%</div>
-</div>
+  <div class="counter-grid" id="counterGrid">
+    <!-- Cells will be inserted dynamically -->
+  </div>
 
-<p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 500</p>
+  <div class="button-row">
+    <button onclick="resetCounts()">Reset</button>
+    <button onclick="calculatePercentages()">Calculate</button>
+    <button onclick="exportToPDF()">Export to PDF</button>
+  </div>
 
-<div class="button-row">
-  <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
-</div>
+  <div id="results"></div>
 
-<div class="counter-grid" id="counterGrid"></div>
+  <div class="nav-back"><a href="./index.html">Back to Menu</a></div>
 
-<div class="button-row">
-  <button onclick="resetCounts()">Reset</button>
-  <button onclick="calculatePercentages()">Calculate</button>
-  <button onclick="exportToPDF()">Export to PDF</button>
-</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const cellTypes = {
+      // Erythroid
+      erythroblast: "Erythroblast",
+      dyserythroblast: "Dyserythroblast",
+      // Myeloid
+      myeloblast: "Myeloblast",
+      promyelocyte: "Promyelocyte",
+      myelocyte: "Myelocyte",
+      metamyelocyte: "Metamyelocyte",
+      band: "Band Form",
+      neutrophil: "Neutrophil",
+      eosinophil: "Eosinophil",
+      basophil: "Basophil",
+      // Monocytic
+      monoblast: "Monoblast",
+      monocyte: "Monocyte",
+      // Lymphoid
+      lymphocyte: "Lymphocyte",
+      plasma: "Plasma Cell",
+      // Megakaryocytic
+      megakaryoblast: "Megakaryoblast",
+      megakaryocyte: "Megakaryocyte",
+      // Others
+      others: "Others"
+    };
 
-<div id="results"></div>
+    const erythroidCells = ['erythroblast', 'dyserythroblast'];
+    const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
-<div class="nav-back"><a href="./index.html">Back to Menu</a></div>
-
-<!-- Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-  const cellTypes = {
-    erythroblast: "Erythroblast",
-    dyserythroblast: "Dyserythroblast",
-    myeloblast: "Myeloblast",
-    promyelocyte: "Promyelocyte",
-    myelocyte: "Myelocyte",
-    metamyelocyte: "Metamyelocyte",
-    band: "Band Form",
-    neutrophil: "Neutrophil",
-    eosinophil: "Eosinophil",
-    basophil: "Basophil",
-    monoblast: "Monoblast",
-    monocyte: "Monocyte",
-    lymphocyte: "Lymphocyte",
-    plasma: "Plasma Cell",
-    megakaryoblast: "Megakaryoblast",
-    megakaryocyte: "Megakaryocyte",
-    others: "Others"
-  };
-
-  const erythroidCells = ['erythroblast', 'dyserythroblast'];
-  const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
-
-  function createCounters() {
-    const grid = document.getElementById("counterGrid");
-    for (const key in cellTypes) {
-      const div = document.createElement("div");
-      div.className = "cell-counter";
-      div.innerHTML = `
-        <img src="images/${key}.png" alt="${cellTypes[key]}" onclick="increment('${key}')" class="cell-image">
-        <p>${cellTypes[key]}: <span id="${key}">0</span></p>
-        <div class="normal-range">Normal range not defined</div>
-      `;
-      grid.appendChild(div);
-    }
-  }
-
-  function increment(cellType) {
-    const total = getTotalCount();
-    if (total >= 500) {
-      alert("You have reached the limit of 500 cells.");
-      return;
-    }
-    const el = document.getElementById(cellType);
-    el.innerText = parseInt(el.innerText) + 1;
-    document.getElementById('totalCount').innerText = getTotalCount();
-    updateProgressBar();
-  }
-
-  function getTotalCount() {
-    return Object.keys(cellTypes).reduce((sum, cell) => {
-      return sum + parseInt(document.getElementById(cell).innerText);
-    }, 0);
-  }
-
-  function resetCounts() {
-    for (const cell in cellTypes) {
-      document.getElementById(cell).innerText = '0';
-    }
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('totalCount').innerText = '0';
-    updateProgressBar();
-  }
-
-  function calculatePercentages() {
-    const total = getTotalCount();
-    if (total === 0) {
-      alert("No cells counted yet.");
-      return;
+    function createCounters() {
+      const grid = document.getElementById("counterGrid");
+      for (const key in cellTypes) {
+        const cellName = cellTypes[key];
+        const div = document.createElement("div");
+        div.className = "cell-counter";
+        div.innerHTML = `
+          <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" class="cell-image">
+          <p>${cellName}: <span id="${key}">0</span></p>
+          <div class="normal-range">Normal range not defined</div>
+        `;
+        grid.appendChild(div);
+      }
     }
 
-    let resultHTML = "<h3>Bone Marrow Differential (Normalized to 100%)</h3>";
-    resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
-
-    let erythroidCount = 0, myeloidCount = 0;
-
-    for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
-      if (erythroidCells.includes(cell)) erythroidCount += count;
-      if (myeloidCells.includes(cell)) myeloidCount += count;
+    function increment(cellType) {
+      const total = getTotalCount();
+      if (total >= 500) {
+        alert("You have reached the total limit of 500 cells.");
+        return;
+      }
+      const el = document.getElementById(cellType);
+      el.innerText = parseInt(el.innerText) + 1;
+      document.getElementById('totalCount').innerText = getTotalCount();
+      triggerHapticFeedback();
     }
 
-    resultHTML += "</table><br>";
+    function getTotalCount() {
+      return Object.keys(cellTypes).reduce((sum, cell) => {
+        return sum + parseInt(document.getElementById(cell).innerText);
+      }, 0);
+    }
 
-    const ratio = erythroidCount === 0 ? "∞" : (myeloidCount / erythroidCount).toFixed(2);
-    resultHTML += `<p><strong>Myeloid:Erythroid Ratio:</strong> ${ratio}</p>`;
-    resultHTML += `<p><strong>Normal M:E Ratio:</strong> 2:1 to 4:1</p>`;
+    function resetCounts() {
+      for (const cell in cellTypes) {
+        document.getElementById(cell).innerText = '0';
+      }
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('totalCount').innerText = '0';
+    }
 
-    document.getElementById('results').innerHTML = resultHTML;
-  }
+    function calculatePercentages() {
+      const total = getTotalCount();
+      if (total === 0) {
+        alert("No cells counted.");
+        return;
+      }
 
-  function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("Bone Marrow Differential (Normalized to 100%)", 10, 10);
+      let resultHTML = "<h3>Bone Marrow Differential (Normalized to 100%)</h3>";
+      resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
 
-    let y = 20;
-    const total = getTotalCount();
-    let erythroid = 0, myeloid = 0;
+      let erythroidCount = 0;
+      let myeloidCount = 0;
 
-    for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
-      if (erythroidCells.includes(cell)) erythroid += count;
-      if (myeloidCells.includes(cell)) myeloid += count;
+      for (const cell in cellTypes) {
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+        if (erythroidCells.includes(cell)) erythroidCount += count;
+        if (myeloidCells.includes(cell)) myeloidCount += count;
+      }
+
+      resultHTML += "</table><br>";
+
+      const ratio = erythroidCount === 0 ? "∞" : (myeloidCount / erythroidCount).toFixed(2);
+      resultHTML += `<p><strong>Myeloid:Erythroid Ratio:</strong> ${ratio}</p>`;
+      resultHTML += `<p><strong>Normal M:E Ratio:</strong> 2:1 to 4:1</p>`;
+
+      document.getElementById('results').innerHTML = resultHTML;
+    }
+
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Bone Marrow Differential (Normalized to 100%)", 10, 10);
+
+      let y = 20;
+      const total = getTotalCount();
+      let erythroid = 0, myeloid = 0;
+
+      for (const cell in cellTypes) {
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+        if (erythroidCells.includes(cell)) erythroid += count;
+        if (myeloidCells.includes(cell)) myeloid += count;
+        y += 8;
+      }
+
+      y += 5;
+      const ratio = erythroid === 0 ? "∞" : (myeloid / erythroid).toFixed(2);
+      doc.text(`Myeloid:Erythroid Ratio: ${ratio}`, 10, y);
       y += 8;
+      doc.text("Normal M:E Ratio: 2:1 to 4:1", 10, y);
+
+      doc.save("bone_marrow_differential.pdf");
     }
 
-    y += 5;
-    const ratio = erythroid === 0 ? "∞" : (myeloid / erythroid).toFixed(2);
-    doc.text(`Myeloid:Erythroid Ratio: ${ratio}`, 10, y);
-    y += 8;
-    doc.text("Normal M:E Ratio: 2:1 to 4:1", 10, y);
-
-    doc.save("bone_marrow_differential.pdf");
-  }
-
-  function toggleNormalValues() {
-    const normals = document.querySelectorAll('.normal-range');
-    normals.forEach(n => {
-      n.style.display = (n.style.display === 'none' || n.style.display === '') ? 'block' : 'none';
-    });
-  }
-
-  function updateProgressBar() {
-    const total = getTotalCount();
-    const percent = (total / 500) * 100;
-    const progressBar = document.getElementById('progressBar');
-
-    progressBar.style.width = percent + "%";
-    progressBar.textContent = Math.round(percent) + "%";
-
-    if (percent < 60) {
-      progressBar.style.backgroundColor = '#4caf50'; // Green
-    } else if (percent < 90) {
-      progressBar.style.backgroundColor = '#ffc107'; // Yellow/Orange
-    } else {
-      progressBar.style.backgroundColor = '#dc3545'; // Red
+    function toggleNormalValues() {
+      const normals = document.querySelectorAll('.normal-range');
+      normals.forEach(n => {
+        n.style.display = (n.style.display === 'none' || n.style.display === '') ? 'block' : 'none';
+      });
     }
-  }
 
-  createCounters();
-</script>
+    function triggerHapticFeedback() {
+      if (navigator.vibrate) {
+        navigator.vibrate(50); // trigger a 50ms vibration for haptic feedback
+      }
+    }
+
+    createCounters();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log("Service Worker registered."))
+        .catch(err => console.log("Service Worker registration failed:", err));
+    }
+  </script>
 
 </body>
 </html>
