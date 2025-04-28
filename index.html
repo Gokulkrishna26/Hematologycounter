@@ -12,7 +12,6 @@
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
-      transition: background 0.3s ease;
       background-color: #f4f6f9;
       color: #333;
     }
@@ -98,18 +97,32 @@
       color: #555;
     }
 
-    .nav-back {
-      margin-top: 20px;
+    /* Navigation Buttons */
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
     }
 
-    .nav-back a {
+    .nav-button {
+      background-color: #007bff;
+      color: white;
+      font-size: 18px;
+      padding: 15px 25px;
+      border-radius: 8px;
       text-decoration: none;
-      color: #007bff;
-      font-weight: bold;
-      font-size: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+      width: 200px;
     }
 
-    /* Mobile responsive styling */
+    .nav-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    /* Mobile responsiveness */
     @media (max-width: 600px) {
       .topbar {
         font-size: 18px;
@@ -126,6 +139,14 @@
 
       p {
         font-size: 16px;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      .nav-button {
+        width: 100%;
       }
     }
   </style>
@@ -149,8 +170,18 @@
 <!-- Main Content Area -->
 <div class="main-content">
   <h2>Welcome to Hematology Cell Counter</h2>
-  <p>Select a counter from the menu to begin.</p>
-
+  <p>Select a counter below to begin.</p>
+  
+  <!-- Navigation Buttons -->
+  <div class="button-container">
+    <a href="wbc_counter.html" class="nav-button">WBC Differential</a>
+    <a href="bone_marrow.html" class="nav-button">Bone Marrow Counter</a>
+    <a href="platelet_counter.html" class="nav-button">Platelet Counter</a>
+    <a href="retic_counter.html" class="nav-button">Retic Counter</a>
+  </div>
+  
+  <div class="nav-back">
+    <a href="./index.html">Back to Menu</a>
   </div>
 </div>
 
