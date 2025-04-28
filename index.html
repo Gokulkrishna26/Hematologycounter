@@ -7,11 +7,12 @@
   <title>Cell Counter PWA</title>
   <link rel="manifest" href="/manifest.json">
   <style>
+    /* Global styles */
     body {
       margin: 0;
-      font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
-      background: linear-gradient(135deg, #0056b3, #007bff);
+      background-color: #f4f6f9;
       color: #333;
     }
 
@@ -19,16 +20,21 @@
       background-color: #007bff;
       color: white;
       padding: 15px;
-      font-size: 22px;
+      font-size: 20px;
       display: flex;
       align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .menu-icon {
-      font-size: 30px;
-      margin-right: 15px;
+      font-size: 24px;
       cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .menu-icon:hover {
+      transform: scale(1.2);
     }
 
     .sidemenu {
@@ -38,20 +44,21 @@
       z-index: 1;
       top: 0;
       left: 0;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.9);
       overflow-x: hidden;
       padding-top: 60px;
       transition: width 0.5s ease;
+      box-shadow: 4px 0 6px rgba(0, 0, 0, 0.2);
     }
 
     .sidemenu a {
       padding: 15px 30px;
       text-decoration: none;
-      font-size: 20px;
+      font-size: 18px;
       color: white;
       display: block;
-      transition: 0.3s ease;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      transition: 0.3s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .sidemenu a:hover {
@@ -59,94 +66,106 @@
     }
 
     .main-content {
-      padding: 20px;
+      padding: 40px 20px;
       text-align: center;
       transition: filter 0.3s ease;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .closebtn {
       position: absolute;
       top: 10px;
-      right: 25px;
+      right: 20px;
       font-size: 30px;
       cursor: pointer;
       color: white;
     }
 
-    .menu-button {
-      display: inline-block;
-      margin: 15px;
-      padding: 15px 30px;
-      background-color: #007bff;
-      color: white;
-      font-size: 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .menu-button:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);
-    }
-
-    .menu-button:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Add a subtle fade transition for smooth opening/closing of the menu */
     body.menu-open .main-content {
       filter: blur(4px);
     }
 
-    .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 30px;
+    h2 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 20px;
     }
 
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      margin: 10px;
-      width: 200px;
+    p {
+      font-size: 18px;
+      color: #555;
+    }
+
+    /* Navigation Buttons */
+    .button-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 40px;
+    }
+
+    .nav-button {
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
       text-align: center;
-      padding: 20px;
+      transition: all 0.3s ease;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    .nav-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
     }
 
-    .card img {
-      width: 50px;
-      margin-bottom: 15px;
+    .nav-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
+    /* Mobile responsiveness */
     @media (max-width: 600px) {
-      .menu-button {
-        font-size: 16px;
-        padding: 12px 24px;
+      .topbar {
+        font-size: 18px;
+        padding: 12px;
       }
 
-      .card {
-        width: 180px;
+      .sidemenu a {
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      .button-container {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-button {
+        padding: 8px 14px;
+        font-size: 14px;
+        max-width: 90%;
       }
     }
-
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <span class="menu-icon" onclick="openMenu()">☰</span>
-  Cell Counter
+  <span>Cell Counter</span>
 </div>
 
 <!-- Side Menu -->
@@ -158,43 +177,32 @@
   <a href="retic_counter.html">Retic Counter</a>
 </div>
 
+<!-- Main Content Area -->
 <div class="main-content">
   <h2>Welcome to Hematology Cell Counter</h2>
-  <p>Select a counter from the menu below:</p>
-
-  <!-- Buttons Container -->
-  <div class="card-container">
-    <div class="card">
-      <img src="images/wbc_icon.png" alt="WBC">
-      <a href="wbc_counter.html" class="menu-button">WBC Differential</a>
-    </div>
-    <div class="card">
-      <img src="images/platelet_icon.png" alt="Platelets">
-      <a href="platelet_counter.html" class="menu-button">Platelet Counter</a>
-    </div>
-    <div class="card">
-      <img src="images/retic_icon.png" alt="Retic">
-      <a href="retic_counter.html" class="menu-button">Retic Counter</a>
-    </div>
-    <div class="card">
-      <img src="images/bone_marrow_icon.png" alt="Bone Marrow">
-      <a href="bone_marrow.html" class="menu-button">Bone Marrow Counter</a>
-    </div>
+  <p>Select a counter below to begin.</p>
+  
+  <!-- Navigation Buttons -->
+  <div class="button-container">
+    <a href="wbc_counter.html" class="nav-button">WBC Differential</a>
+    <a href="bone_marrow.html" class="nav-button">Bone Marrow Counter</a>
+    <a href="platelet_counter.html" class="nav-button">Platelet Counter</a>
+    <a href="retic_counter.html" class="nav-button">Retic Counter</a>
   </div>
 </div>
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").style.width = "250px"; // Slide in side menu
-    document.body.classList.add('menu-open');  // Add blur effect to background
+    document.getElementById("sideMenu").style.width = "250px";
+    document.body.classList.add('menu-open');
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").style.width = "0"; // Slide out side menu
-    document.body.classList.remove('menu-open'); // Remove blur effect
+    document.getElementById("sideMenu").style.width = "0";
+    document.body.classList.remove('menu-open');
   }
 
-  // Ensure service worker registration after page load
+  // Service Worker registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/service-worker.js')
