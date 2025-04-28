@@ -1,176 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>WBC Counter</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 10px;
-      background-color: #ffffff;
-      margin: 0;
-    }
-    h2 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .counter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 20px;
-      margin: 20px 0;
-      padding: 0 20px;
-    }
-    .cell-counter {
-      text-align: center;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .cell-image {
-      width: 100px;
-      height: auto;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-    .progress-bar-container {
+    /* Add your previous styles here, and modify the layout as needed */
+    /* Progress Bar */
+    #progressBarContainer {
       width: 100%;
-      height: 15px;
       background-color: #f3f3f3;
+      height: 20px;
       border-radius: 10px;
-      margin: 10px 0;
-      overflow: hidden;
+      position: relative;
     }
-    .progress-bar {
+    #progressBar {
       height: 100%;
-      background-color: #007bff;
       width: 0%;
-      text-align: center;
-      line-height: 15px;
+      background-color: green;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+    #progressText {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       color: white;
       font-weight: bold;
     }
-    .normal-range {
-      display: none;
-      font-size: 14px;
-      color: gray;
-      margin-top: 4px;
-    }
-    .button-row {
-      text-align: center;
-      margin: 20px 0;
-    }
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin: 5px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #results {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-    th, td {
-      padding: 12px;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .nav-back {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .nav-back a {
-      text-decoration: none;
-      color: #007bff;
-      font-weight: bold;
-    }
-    .normal-values {
-      font-size: 16px;
-      color: #333;
-      font-weight: bold;
-      margin-top: 20px;
-      text-align: center;
+    /* Zoom Fix */
+    html, body {
+      touch-action: manipulation; /* Prevent zooming on touch actions */
     }
   </style>
 </head>
+
 <body>
 
-<h2>WBC Differential Counter</h2>
+<h2>WBC Counter</h2>
+<p><strong>Counting Limit: 100 cells</strong></p>
+<p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 100</p>
 
-<!-- Normal Reference Range -->
-<div class="normal-values">
-  <p><strong>Normal Reference Range:</strong></p>
-  <p>Neutrophils: 40–75%, Lymphocytes: 20–45%, Blasts: 0%, Eosinophils: 1–6%, Basophils: 0–1%, Monocytes: 2–10%</p>
+<!-- Progress Bar -->
+<div id="progressBarContainer">
+  <div id="progressBar"></div>
+  <span id="progressText">0%</span>
 </div>
 
-<div class="button-row">
-  <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
-</div>
-
-<!-- Global Progress Bar -->
-<div class="progress-bar-container">
-  <div id="totalProgress" class="progress-bar">0%</div>
-</div>
-
-<div class="counter-grid">
-  <!-- Neutrophils -->
-  <div class="cell-counter">
-    <img src="images/neutrophil.png" alt="Neutrophil" onclick="increment('neutrophils')" class="cell-image">
-    <p>Neutrophils: <span id="neutrophils">0</span></p>
-  </div>
-
-  <!-- Lymphocytes -->
-  <div class="cell-counter">
-    <img src="images/lymphocyte.png" alt="Lymphocyte" onclick="increment('lymphocytes')" class="cell-image">
-    <p>Lymphocytes: <span id="lymphocytes">0</span></p>
-  </div>
-
-  <!-- Blasts -->
-  <div class="cell-counter">
-    <img src="images/blast.png" alt="Blasts" onclick="increment('blasts')" class="cell-image">
-    <p>Blasts: <span id="blasts">0</span></p>
-  </div>
-
-  <!-- Eosinophils -->
-  <div class="cell-counter">
-    <img src="images/eosinophil.png" alt="Eosinophil" onclick="increment('eosinophils')" class="cell-image">
-    <p>Eosinophils: <span id="eosinophils">0</span></p>
-  </div>
-
-  <!-- Basophils -->
-  <div class="cell-counter">
-    <img src="images/basophil.png" alt="Basophil" onclick="increment('basophils')" class="cell-image">
-    <p>Basophils: <span id="basophils">0</span></p>
-  </div>
-
-  <!-- Monocytes -->
-  <div class="cell-counter">
-    <img src="images/monocyte.png" alt="Monocyte" onclick="increment('monocytes')" class="cell-image">
-    <p>Monocytes: <span id="monocytes">0</span></p>
-  </div>
+<div class="counter-grid" id="counterGrid">
+  <!-- Cells will be inserted dynamically -->
 </div>
 
 <div class="button-row">
@@ -181,81 +60,132 @@
 
 <div id="results"></div>
 
-<div class="nav-back">
-  <a href="./index.html">Back to Menu</a>
-</div>
+<div class="nav-back"><a href="./index.html">Back to Menu</a></div>
 
+<!-- Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/haptics.js/1.1.1/haptics.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
-  const cellTypes = ['neutrophils', 'lymphocytes', 'blasts', 'eosinophils', 'basophils', 'monocytes'];
+  const cellTypes = {
+    neutrophil: "Neutrophil",
+    lymphocyte: "Lymphocyte",
+    monocyte: "Monocyte",
+    eosinophil: "Eosinophil",
+    basophil: "Basophil",
+    others: "Others"
+  };
+
+  function createCounters() {
+    const grid = document.getElementById("counterGrid");
+    for (const key in cellTypes) {
+        const cellName = cellTypes[key];
+        const div = document.createElement("div");
+        div.className = "cell-counter";
+        div.innerHTML = `
+        <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" class="cell-image">
+        <p>${cellName}: <span id="${key}">0</span></p>
+      `;
+        grid.appendChild(div);
+    }
+  }
 
   function increment(cellType) {
     const total = getTotalCount();
     if (total >= 100) {
-      alert("You have reached the total limit of 100 cells.");
-      return;
+        alert("You have reached the total limit of 100 cells.");
+        return;
     }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
-    updateProgress();
+    document.getElementById('totalCount').innerText = getTotalCount();
+    updateProgressBar();
+    hapticFeedback();
   }
 
-  function updateProgress() {
-    const total = getTotalCount();
-    const progress = (total / 100) * 100;
-    document.getElementById('totalProgress').style.width = `${progress}%`;
-    document.getElementById('totalProgress').innerText = `${progress.toFixed(2)}%`;
+  function hapticFeedback() {
+    if (navigator.vibrate) {
+        navigator.vibrate(50); 
+    }
   }
 
   function getTotalCount() {
-    return cellTypes.reduce((sum, cell) => {
-      return sum + parseInt(document.getElementById(cell).innerText);
+    return Object.keys(cellTypes).reduce((sum, cell) => {
+        return sum + parseInt(document.getElementById(cell).innerText);
     }, 0);
   }
 
   function resetCounts() {
-    cellTypes.forEach(cell => {
-      document.getElementById(cell).innerText = '0';
-    });
-    updateProgress();
+    for (const cell in cellTypes) {
+        document.getElementById(cell).innerText = '0';
+    }
     document.getElementById('results').innerHTML = '';
+    document.getElementById('totalCount').innerText = '0';
+    updateProgressBar(); 
   }
 
   function calculatePercentages() {
     const total = getTotalCount();
     if (total === 0) {
-      alert("No cells counted.");
-      return;
+        alert("No cells counted.");
+        return;
     }
-    let resultHTML = "<h3>WBC Differential</h3><table><tr><th>Cell Type</th><th>Count</th><th>Percentage</th></tr>";
-    cellTypes.forEach(cell => {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      resultHTML += `<tr><td>${cell.charAt(0).toUpperCase() + cell.slice(1)}</td><td>${count}</td><td>${percent}%</td></tr>`;
-    });
+
+    let resultHTML = "<h3>WBC Differential (Normalized to 100%)</h3>";
+    resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
+
+    for (const cell in cellTypes) {
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+    }
+
     resultHTML += "</table>";
+
     document.getElementById('results').innerHTML = resultHTML;
   }
 
   function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.text("WBC Differential Count", 10, 10);
+    doc.text("WBC Differential (Normalized to 100%)", 10, 10);
+
     let y = 20;
-    cellTypes.forEach(cell => {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / getTotalCount()) * 100).toFixed(2);
-      doc.text(`${cell.charAt(0).toUpperCase() + cell.slice(1)}: ${count} (${percent}%)`, 10, y);
-      y += 10;
-    });
-    doc.save('wbc_count.pdf');
+    const total = getTotalCount();
+
+    for (const cell in cellTypes) {
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+        y += 10;
+    }
+
+    doc.save("wbc_report.pdf");
   }
 
-  function toggleNormalValues() {
-    const normalValues = document.querySelector('.normal-values');
-    normalValues.style.display = (normalValues.style.display === 'none' || normalValues.style.display === '') ? 'block' : 'none';
+  function updateProgressBar() {
+    const total = getTotalCount();
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const percentage = (total / 100) * 100;
+
+    progressBar.style.width = `${percentage}%`;
+
+    if (percentage <= 33) {
+        progressBar.style.backgroundColor = 'green';
+    } else if (percentage <= 66) {
+        progressBar.style.backgroundColor = 'yellow';
+    } else {
+        progressBar.style.backgroundColor = 'red';
+    }
+
+    progressText.innerText = `${percentage.toFixed(0)}%`;
   }
+
+  window.onload = function () {
+    createCounters();
+  };
 </script>
-
 </body>
 </html>
