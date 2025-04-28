@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WBC Differential Counter</title>
   <style>
+    html, body {
+      touch-action: manipulation; /* Prevent zoom on touch actions */
+    }
     body {
       font-family: Arial, sans-serif;
       padding: 10px;
@@ -160,14 +163,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   const cellTypes = ['neutrophils', 'lymphocytes', 'blasts', 'eosinophils', 'basophils', 'monocytes'];
-  const referenceRanges = {
-    neutrophils: [40, 75],
-    lymphocytes: [20, 45],
-    blasts: [0, 0],
-    eosinophils: [1, 6],
-    basophils: [0, 1],
-    monocytes: [2, 10]
-  };
 
   function increment(cellType) {
     const el = document.getElementById(cellType);
