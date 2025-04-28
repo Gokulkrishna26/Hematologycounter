@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>WBC Counter</title>
   <style>
     body {
@@ -10,6 +10,7 @@
       padding: 10px;
       background-color: #ffffff;
       margin: 0;
+      touch-action: manipulation; /* Prevent zooming on touch actions */
     }
     h2 {
       text-align: center;
@@ -97,19 +98,17 @@
       margin-top: 20px;
       text-align: center;
     }
-    .overall-progress {
-      margin: 20px 0;
-      text-align: center;
-    }
     .progress-bar {
+      height: 20px;
       width: 100%;
-      background-color: #e0e0e0;
-      border-radius: 25px;
-      height: 25px;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin-top: 10px;
     }
-    #overall-bar {
+    .progress-bar span {
+      display: block;
       height: 100%;
-      border-radius: 25px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -117,12 +116,10 @@
 
 <h2>WBC Differential Counter</h2>
 
-<!-- Overall Progress Bar -->
-<div class="overall-progress">
-  <p>Overall Progress</p>
-  <div class="progress-bar">
-    <span id="overall-bar"></span>
-  </div>
+<!-- Normal Reference Range -->
+<div class="normal-values">
+  <p><strong>Normal Reference Range:</strong></p>
+  <p>Neutrophils: 40–75%, Lymphocytes: 20–45%, Blasts: 0%, Eosinophils: 1–6%, Basophils: 0–1%, Monocytes: 2–10%</p>
 </div>
 
 <div class="button-row">
@@ -134,36 +131,42 @@
     <img src="images/neutrophil.png" alt="Neutrophil" onclick="increment('neutrophils')" class="cell-image">
     <p>Neutrophils: <span id="neutrophils">0</span></p>
     <div class="normal-range">Normal: 40–75%</div>
+    <div class="progress-bar"><span id="neutrophils-bar"></span></div>
   </div>
 
   <div class="cell-counter">
     <img src="images/lymphocyte.png" alt="Lymphocyte" onclick="increment('lymphocytes')" class="cell-image">
     <p>Lymphocytes: <span id="lymphocytes">0</span></p>
     <div class="normal-range">Normal: 20–45%</div>
+    <div class="progress-bar"><span id="lymphocytes-bar"></span></div>
   </div>
 
   <div class="cell-counter">
     <img src="images/blast.png" alt="Blasts" onclick="increment('blasts')" class="cell-image">
     <p>Blasts: <span id="blasts">0</span></p>
     <div class="normal-range">Normal: 0%</div>
+    <div class="progress-bar"><span id="blasts-bar"></span></div>
   </div>
 
   <div class="cell-counter">
     <img src="images/eosinophil.png" alt="Eosinophil" onclick="increment('eosinophils')" class="cell-image">
     <p>Eosinophils: <span id="eosinophils">0</span></p>
     <div class="normal-range">Normal: 1–6%</div>
+    <div class="progress-bar"><span id="eosinophils-bar"></span></div>
   </div>
 
   <div class="cell-counter">
     <img src="images/basophil.png" alt="Basophil" onclick="increment('basophils')" class="cell-image">
     <p>Basophils: <span id="basophils">0</span></p>
     <div class="normal-range">Normal: 0–1%</div>
+    <div class="progress-bar"><span id="basophils-bar"></span></div>
   </div>
 
   <div class="cell-counter">
     <img src="images/monocyte.png" alt="Monocyte" onclick="increment('monocytes')" class="cell-image">
     <p>Monocytes: <span id="monocytes">0</span></p>
     <div class="normal-range">Normal: 2–10%</div>
+    <div class="progress-bar"><span id="monocytes-bar"></span></div>
   </div>
 </div>
 
@@ -191,7 +194,7 @@
     }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
-    updateOverallProgressBar();
+    updateProgressBar(cellType);
   }
 
   function getTotalCount() {
@@ -203,9 +206,9 @@
   function resetCounts() {
     cellTypes.forEach(cell => {
       document.getElementById(cell).innerText = '0';
+      document.getElementById(`${cell}-bar`).style.width = '0%';
     });
     document.getElementById('results').innerHTML = '';
-    updateOverallProgressBar();
   }
 
   function calculatePercentages() {
@@ -222,7 +225,22 @@
     });
     resultHTML += "</table>";
     document.getElementById('results').innerHTML = resultHTML;
-    updateOverallProgressBar();
+  }
+
+  function updateProgressBar(cellType) {
+    const count = parseInt(document.getElementById(cellType).innerText);
+    const total = getTotalCount();
+    const percentage = (count / total) * 100;
+    const progressBar = document.getElementById(`${cellType}-bar`);
+    progressBar.style.width = `${percentage}%`;
+
+    if (percentage < 40) {
+      progressBar.style.backgroundColor = 'green';
+    } else if (percentage >= 40 && percentage < 70) {
+      progressBar.style.backgroundColor = 'yellow';
+    } else {
+      progressBar.style.backgroundColor = 'red';
+    }
   }
 
   function exportToPDF() {
@@ -237,22 +255,6 @@
       y += 10;
     });
     doc.save("wbc_differential.pdf");
-  }
-
-  function updateOverallProgressBar() {
-    const total = getTotalCount();
-    const totalCells = 100;
-    const percentage = (total / totalCells) * 100;
-    const progressBar = document.getElementById("overall-bar");
-    progressBar.style.width = `${percentage}%`;
-
-    if (percentage < 40) {
-      progressBar.style.backgroundColor = 'green';
-    } else if (percentage >= 40 && percentage < 70) {
-      progressBar.style.backgroundColor = 'yellow';
-    } else {
-      progressBar.style.backgroundColor = 'red';
-    }
   }
 
   function toggleNormalValues() {
