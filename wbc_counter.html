@@ -97,14 +97,17 @@
       margin-top: 20px;
       text-align: center;
     }
-    .cell-progress-bar {
+    .overall-progress {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .progress-bar {
       width: 100%;
       background-color: #e0e0e0;
       border-radius: 25px;
       height: 25px;
-      margin-top: 10px;
     }
-    .cell-progress {
+    #overall-bar {
       height: 100%;
       border-radius: 25px;
     }
@@ -114,59 +117,53 @@
 
 <h2>WBC Differential Counter</h2>
 
+<!-- Overall Progress Bar -->
+<div class="overall-progress">
+  <p>Overall Progress</p>
+  <div class="progress-bar">
+    <span id="overall-bar"></span>
+  </div>
+</div>
+
+<div class="button-row">
+  <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
+</div>
+
 <div class="counter-grid">
   <div class="cell-counter">
     <img src="images/neutrophil.png" alt="Neutrophil" onclick="increment('neutrophils')" class="cell-image">
     <p>Neutrophils: <span id="neutrophils">0</span></p>
     <div class="normal-range">Normal: 40–75%</div>
-    <div class="cell-progress-bar">
-      <span id="neutrophil-progress" class="cell-progress"></span>
-    </div>
   </div>
 
   <div class="cell-counter">
     <img src="images/lymphocyte.png" alt="Lymphocyte" onclick="increment('lymphocytes')" class="cell-image">
     <p>Lymphocytes: <span id="lymphocytes">0</span></p>
     <div class="normal-range">Normal: 20–45%</div>
-    <div class="cell-progress-bar">
-      <span id="lymphocyte-progress" class="cell-progress"></span>
-    </div>
   </div>
 
   <div class="cell-counter">
     <img src="images/blast.png" alt="Blasts" onclick="increment('blasts')" class="cell-image">
     <p>Blasts: <span id="blasts">0</span></p>
     <div class="normal-range">Normal: 0%</div>
-    <div class="cell-progress-bar">
-      <span id="blast-progress" class="cell-progress"></span>
-    </div>
   </div>
 
   <div class="cell-counter">
     <img src="images/eosinophil.png" alt="Eosinophil" onclick="increment('eosinophils')" class="cell-image">
     <p>Eosinophils: <span id="eosinophils">0</span></p>
     <div class="normal-range">Normal: 1–6%</div>
-    <div class="cell-progress-bar">
-      <span id="eosinophil-progress" class="cell-progress"></span>
-    </div>
   </div>
 
   <div class="cell-counter">
     <img src="images/basophil.png" alt="Basophil" onclick="increment('basophils')" class="cell-image">
     <p>Basophils: <span id="basophils">0</span></p>
     <div class="normal-range">Normal: 0–1%</div>
-    <div class="cell-progress-bar">
-      <span id="basophil-progress" class="cell-progress"></span>
-    </div>
   </div>
 
   <div class="cell-counter">
     <img src="images/monocyte.png" alt="Monocyte" onclick="increment('monocytes')" class="cell-image">
     <p>Monocytes: <span id="monocytes">0</span></p>
     <div class="normal-range">Normal: 2–10%</div>
-    <div class="cell-progress-bar">
-      <span id="monocyte-progress" class="cell-progress"></span>
-    </div>
   </div>
 </div>
 
@@ -185,47 +182,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   const cellTypes = ['neutrophils', 'lymphocytes', 'blasts', 'eosinophils', 'basophils', 'monocytes'];
-  const referenceRanges = {
-    neutrophils: [40, 75],
-    lymphocytes: [20, 45],
-    blasts: [0, 0],
-    eosinophils: [1, 6],
-    basophils: [0, 1],
-    monocytes: [2, 10]
-  };
 
   function increment(cellType) {
+    const total = getTotalCount();
+    if (total >= 100) {
+      alert("You have reached the total limit of 100 cells.");
+      return;
+    }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
-    updateProgress(cellType);
+    updateOverallProgressBar();
   }
 
-  function updateProgress(cellType) {
-    const count = parseInt(document.getElementById(cellType).innerText);
-    const progressBar = document.getElementById(`${cellType}-progress`);
-    const [low, high] = referenceRanges[cellType];
-    const percentage = ((count / 100) * 100).toFixed(2);
-
-    progressBar.style.width = `${percentage}%`;
-
-    if (percentage < low) {
-      progressBar.style.backgroundColor = 'green';
-    } else if (percentage >= low && percentage <= high) {
-      progressBar.style.backgroundColor = 'yellow';
-    } else {
-      progressBar.style.backgroundColor = 'red';
-    }
+  function getTotalCount() {
+    return cellTypes.reduce((sum, cell) => {
+      return sum + parseInt(document.getElementById(cell).innerText);
+    }, 0);
   }
 
   function resetCounts() {
     cellTypes.forEach(cell => {
       document.getElementById(cell).innerText = '0';
-      updateProgress(cell);
     });
+    document.getElementById('results').innerHTML = '';
+    updateOverallProgressBar();
   }
 
   function calculatePercentages() {
-    const total = cellTypes.reduce((sum, cell) => sum + parseInt(document.getElementById(cell).innerText), 0);
+    const total = getTotalCount();
+    if (total === 0) {
+      alert("No cells counted.");
+      return;
+    }
     let resultHTML = "<h3>WBC Differential</h3><table><tr><th>Cell Type</th><th>Count</th><th>Percentage</th></tr>";
     cellTypes.forEach(cell => {
       const count = parseInt(document.getElementById(cell).innerText);
@@ -234,6 +222,7 @@
     });
     resultHTML += "</table>";
     document.getElementById('results').innerHTML = resultHTML;
+    updateOverallProgressBar();
   }
 
   function exportToPDF() {
@@ -243,18 +232,35 @@
     let y = 20;
     cellTypes.forEach(cell => {
       const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / 100) * 100).toFixed(2);
+      const percent = ((count / getTotalCount()) * 100).toFixed(2);
       doc.text(`${cell.charAt(0).toUpperCase() + cell.slice(1)}: ${count} (${percent}%)`, 10, y);
       y += 10;
     });
     doc.save("wbc_differential.pdf");
   }
 
-  window.onload = () => {
-    cellTypes.forEach(cell => {
-      updateProgress(cell);
+  function updateOverallProgressBar() {
+    const total = getTotalCount();
+    const totalCells = 100;
+    const percentage = (total / totalCells) * 100;
+    const progressBar = document.getElementById("overall-bar");
+    progressBar.style.width = `${percentage}%`;
+
+    if (percentage < 40) {
+      progressBar.style.backgroundColor = 'green';
+    } else if (percentage >= 40 && percentage < 70) {
+      progressBar.style.backgroundColor = 'yellow';
+    } else {
+      progressBar.style.backgroundColor = 'red';
+    }
+  }
+
+  function toggleNormalValues() {
+    const normals = document.querySelectorAll('.normal-range');
+    normals.forEach(n => {
+      n.style.display = (n.style.display === 'none' || n.style.display === '') ? 'block' : 'none';
     });
-  };
+  }
 </script>
 
 <script>
