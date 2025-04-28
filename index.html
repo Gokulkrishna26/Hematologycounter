@@ -36,7 +36,7 @@
       z-index: 1;
       top: 0;
       left: 0;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.9);  /* Dark background with higher opacity */
       overflow-x: hidden;
       padding-top: 60px;
       transition: width 0.5s ease;
@@ -71,8 +71,8 @@
       color: white;
     }
 
-    /* Blur effect for the background when the menu is open */
-    body.menu-open {
+    /* Apply blur only to the main content */
+    body.menu-open .main-content {
       filter: blur(4px);
     }
   </style>
