@@ -2,110 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#007bff" />
   <title>Cell Counter PWA</title>
   <link rel="manifest" href="/manifest.json">
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f2f5;
-      transition: background-color 0.5s ease;
+      font-family: 'Arial', sans-serif;
+      background: #f0f2f5;
     }
 
     .topbar {
-      background-color: #007bff;
+      background: linear-gradient(90deg, #007bff, #0056b3);
       color: white;
-      padding: 15px 20px;
+      padding: 15px;
       font-size: 22px;
       display: flex;
       align-items: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
 
     .menu-icon {
-      font-size: 28px;
+      font-size: 26px;
       margin-right: 15px;
       cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .menu-icon:hover {
+      transform: scale(1.2);
     }
 
     .sidemenu {
       height: 100%;
       width: 0;
       position: fixed;
-      z-index: 100;
+      z-index: 2;
       top: 0;
       left: 0;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
       overflow-x: hidden;
-      padding-top: 60px;
-      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
-      opacity: 0;
-      transition: all 0.6s ease;
-    }
-
-    .sidemenu.open {
-      width: 260px;
-      opacity: 1;
+      transition: width 0.5s ease;
+      padding-top: 70px;
     }
 
     .sidemenu a {
-      padding: 12px 30px;
+      margin: 15px 25px;
+      padding: 14px 20px;
       text-decoration: none;
-      font-size: 20px;
-      color: #333;
+      font-size: 18px;
+      color: white;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border-radius: 10px;
       display: block;
-      transform: translateX(-30px);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       opacity: 0;
-      transition: all 0.5s ease;
-    }
-
-    .sidemenu.open a {
-      transform: translateX(0);
-      opacity: 1;
+      transform: translateX(-30px);
+      animation: slideIn 0.6s forwards;
+      animation-delay: var(--delay);
     }
 
     .sidemenu a:hover {
-      background-color: rgba(0, 123, 255, 0.1);
+      background: linear-gradient(135deg, #0056b3, #003d80);
+      transform: scale(1.05);
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .main-content {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .main-content h2 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .main-content p {
+      font-size: 18px;
+      color: #666;
     }
 
     .closebtn {
       position: absolute;
-      top: 12px;
+      top: 15px;
       right: 20px;
       font-size: 36px;
-      cursor: pointer;
       color: #333;
+      cursor: pointer;
+      transition: color 0.3s;
     }
 
-    .main-content {
-      padding: 50px 20px;
-      text-align: center;
-    }
-
-    /* Overlay background */
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 0;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(3px);
-      z-index: 50;
-      opacity: 0;
-      transition: all 0.5s ease;
-    }
-
-    #overlay.active {
-      width: 100%;
-      opacity: 1;
+    .closebtn:hover {
+      color: #000;
     }
   </style>
 </head>
-
 <body>
 
 <div class="topbar">
@@ -113,16 +114,13 @@
   Cell Counter
 </div>
 
-<!-- Overlay -->
-<div id="overlay" onclick="closeMenu()"></div>
-
 <!-- Side Menu -->
 <div id="sideMenu" class="sidemenu">
   <span class="closebtn" onclick="closeMenu()">×</span>
-  <a href="wbc_counter.html">1) WBC Differential</a>
-  <a href="bone_marrow.html">2) Bone Marrow Counter</a>
-  <a href="platelet_counter.html">3) Platelet Counter</a>
-  <a href="retic_counter.html">4) Retic Counter</a>
+  <a href="wbc_counter.html" style="--delay:0.1s">1) WBC Differential</a>
+  <a href="bone_marrow.html" style="--delay:0.2s">2) Bone Marrow Counter</a>
+  <a href="platelet_counter.html" style="--delay:0.3s">3) Platelet Counter</a>
+  <a href="retic_counter.html" style="--delay:0.4s">4) Retic Counter</a>
 </div>
 
 <div class="main-content">
@@ -132,13 +130,11 @@
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").classList.add("open");
-    document.getElementById("overlay").classList.add("active");
+    document.getElementById("sideMenu").style.width = "250px";
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").classList.remove("open");
-    document.getElementById("overlay").classList.remove("active");
+    document.getElementById("sideMenu").style.width = "0";
   }
 
   if ('serviceWorker' in navigator) {
