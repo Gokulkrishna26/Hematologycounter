@@ -43,10 +43,6 @@
       margin-top: 4px;
     }
 
-    .normal-range.show {
-      display: block;
-    }
-
     .button-row, .nav-back {
       text-align: center;
       margin: 20px 0;
@@ -99,32 +95,6 @@
       background-color: #f2f2f2;
     }
 
-    /* Progress Bar */
-    #progressBarContainer {
-      width: 100%;
-      background-color: #f3f3f3;
-      height: 20px;
-      border-radius: 10px;
-      position: relative;
-    }
-
-    #progressBar {
-      height: 100%;
-      width: 0%;
-      background-color: green;
-      border-radius: 10px;
-      transition: width 0.5s ease;
-    }
-
-    #progressText {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      color: white;
-      font-weight: bold;
-    }
-
     /* Responsive Design for Mobile */
     @media (max-width: 768px) {
       .cell-counter {
@@ -151,9 +121,32 @@
         width: 100%;
         margin: 5px 0;
       }
-      html, body {
-        touch-action: manipulation;
-      }
+    }
+
+    /* Progress Bar */
+    #progressBarContainer {
+      width: 100%;
+      background-color: #f3f3f3;
+      height: 20px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: green;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    #progressText {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -161,8 +154,8 @@
 <body>
 
 <h2>WBC Counter</h2>
-<p><strong>Counting Limit: 100 cells</strong></p>
-<p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 100</p>
+<p><strong>Counting Limit: 500 cells</strong></p>
+<p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 500</p>
 
 <!-- Progress Bar -->
 <div id="progressBarContainer">
@@ -196,80 +189,86 @@
 <script>
   const cellTypes = {
     neutrophil: "Neutrophil",
-    eosinophil: "Eosinophil",
-    basophil: "Basophil",
     lymphocyte: "Lymphocyte",
     monocyte: "Monocyte",
-    others: "Others"
+    eosinophil: "Eosinophil",
+    basophil: "Basophil",
+  };
+
+  const referenceRanges = {
+    neutrophil: "40-80%",
+    lymphocyte: "20-40%",
+    monocyte: "2-10%",
+    eosinophil: "1-6%",
+    basophil: "0-1%"
   };
 
   function createCounters() {
     const grid = document.getElementById("counterGrid");
     for (const key in cellTypes) {
-        const cellName = cellTypes[key];
-        const div = document.createElement("div");
-        div.className = "cell-counter";
-        div.innerHTML = `
+      const cellName = cellTypes[key];
+      const div = document.createElement("div");
+      div.className = "cell-counter";
+      div.innerHTML = `
         <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" class="cell-image">
         <p>${cellName}: <span id="${key}">0</span></p>
-        <div class="normal-range">Normal range not defined</div>
+        <div class="normal-range">${referenceRanges[key]}</div>
       `;
-        grid.appendChild(div);
+      grid.appendChild(div);
     }
   }
 
   function increment(cellType) {
     const total = getTotalCount();
-    if (total >= 100) {
-        alert("You have reached the total limit of 100 cells.");
-        return;
+    if (total >= 500) {
+      alert("You have reached the total limit of 500 cells.");
+      return;
     }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
     document.getElementById('totalCount').innerText = getTotalCount();
-    updateProgressBar(); // Update progress bar
-    hapticFeedback(); // Trigger haptic feedback on cell press
+    updateProgressBar();
+    hapticFeedback();
   }
 
   function hapticFeedback() {
     if (navigator.vibrate) {
-        navigator.vibrate(50); // Short vibration
+      navigator.vibrate(50);
     }
   }
 
   function getTotalCount() {
     return Object.keys(cellTypes).reduce((sum, cell) => {
-        return sum + parseInt(document.getElementById(cell).innerText);
+      return sum + parseInt(document.getElementById(cell).innerText);
     }, 0);
   }
 
   function resetCounts() {
     for (const cell in cellTypes) {
-        document.getElementById(cell).innerText = '0';
+      document.getElementById(cell).innerText = '0';
     }
     document.getElementById('results').innerHTML = '';
     document.getElementById('totalCount').innerText = '0';
-    updateProgressBar(); // Reset progress bar
+    updateProgressBar();
   }
 
   function calculatePercentages() {
     const total = getTotalCount();
     if (total === 0) {
-        alert("No cells counted.");
-        return;
+      alert("No cells counted.");
+      return;
     }
 
     let resultHTML = "<h3>WBC Differential (Normalized to 100%)</h3>";
     resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
 
     for (const cell in cellTypes) {
-        const count = parseInt(document.getElementById(cell).innerText);
-        const percent = ((count / total) * 100).toFixed(2);
-        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+      const count = parseInt(document.getElementById(cell).innerText);
+      const percent = ((count / total) * 100).toFixed(2);
+      resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
     }
 
     resultHTML += "</table>";
-
     document.getElementById('results').innerHTML = resultHTML;
   }
 
@@ -282,10 +281,10 @@
     const total = getTotalCount();
 
     for (const cell in cellTypes) {
-        const count = parseInt(document.getElementById(cell).innerText);
-        const percent = ((count / total) * 100).toFixed(2);
-        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
-        y += 10;
+      const count = parseInt(document.getElementById(cell).innerText);
+      const percent = ((count / total) * 100).toFixed(2);
+      doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+      y += 10;
     }
 
     doc.save("wbc_report.pdf");
@@ -295,26 +294,19 @@
     const total = getTotalCount();
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
-    const percentage = (total / 100) * 100;
+    const percentage = (total / 500) * 100;
 
     progressBar.style.width = `${percentage}%`;
 
     if (percentage <= 33) {
-        progressBar.style.backgroundColor = 'green';
+      progressBar.style.backgroundColor = 'green';
     } else if (percentage <= 66) {
-        progressBar.style.backgroundColor = 'yellow';
+      progressBar.style.backgroundColor = 'yellow';
     } else {
-        progressBar.style.backgroundColor = 'red';
+      progressBar.style.backgroundColor = 'red';
     }
 
     progressText.innerText = `${percentage.toFixed(0)}%`;
-  }
-
-  function toggleNormalValues() {
-    const normalRanges = document.querySelectorAll('.normal-range');
-    normalRanges.forEach(range => {
-      range.classList.toggle('show');
-    });
   }
 
   window.onload = function () {
