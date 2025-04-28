@@ -2,68 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#007bff" />
+  <link rel="manifest" href="/manifest.json" />
   <title>Cell Counter PWA</title>
-  <link rel="manifest" href="/manifest.json">
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
     }
 
     .topbar {
       background-color: #007bff;
       color: white;
-      padding: 15px;
-      font-size: 20px;
+      padding: 15px 20px;
+      font-size: 22px;
       display: flex;
       align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .menu-icon {
-      font-size: 24px;
+      font-size: 26px;
       margin-right: 15px;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .menu-icon:hover {
+      transform: scale(1.2);
     }
 
     .sidemenu {
       height: 100%;
       width: 0;
       position: fixed;
-      z-index: 1;
+      z-index: 10;
       top: 0;
       left: 0;
-      background-color: #f8f9fa;
+      background: linear-gradient(135deg, #f8f9fa, #e0e0e0);
       overflow-x: hidden;
-      transition: 0.3s;
+      transition: 0.4s;
       padding-top: 60px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.2);
     }
 
     .sidemenu a {
-      padding: 10px 25px;
+      padding: 12px 30px;
       text-decoration: none;
-      font-size: 18px;
+      font-size: 20px;
       color: #333;
       display: block;
-      transition: 0.2s;
+      transition: background 0.3s, color 0.3s;
     }
 
     .sidemenu a:hover {
-      background-color: #ddd;
-    }
-
-    .main-content {
-      padding: 20px;
-      text-align: center;
+      background: #007bff;
+      color: white;
     }
 
     .closebtn {
       position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 30px;
+      top: 15px;
+      right: 25px;
+      font-size: 36px;
       cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .closebtn:hover {
+      transform: rotate(90deg);
+    }
+
+    .main-content {
+      padding: 50px 20px;
+      text-align: center;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #007bff;
     }
   </style>
 </head>
@@ -71,7 +93,7 @@
 
 <div class="topbar">
   <span class="menu-icon" onclick="openMenu()">☰</span>
-  Cell Counter
+  Hematology Cell Counter
 </div>
 
 <!-- Side Menu -->
@@ -84,8 +106,8 @@
 </div>
 
 <div class="main-content">
-  <h2>Welcome to Hematology Cell Counter</h2>
-  <p>Select a counter from the menu.</p>
+  <h2>Welcome to the Hematology Cell Counter App</h2>
+  <p>Please select a counter from the menu to begin.</p>
 </div>
 
 <script>
@@ -97,7 +119,6 @@
     document.getElementById("sideMenu").style.width = "0";
   }
 
-  // Ensure service worker registration after page load
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/service-worker.js')
