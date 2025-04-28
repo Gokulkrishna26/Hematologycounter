@@ -7,11 +7,14 @@
   <title>Cell Counter PWA</title>
   <link rel="manifest" href="/manifest.json">
   <style>
+    /* Global styles */
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
       transition: background 0.3s ease;
+      background-color: #f4f6f9;
+      color: #333;
     }
 
     .topbar {
@@ -21,12 +24,18 @@
       font-size: 20px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .menu-icon {
       font-size: 24px;
-      margin-right: 15px;
       cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .menu-icon:hover {
+      transform: scale(1.2);
     }
 
     .sidemenu {
@@ -36,10 +45,11 @@
       z-index: 1;
       top: 0;
       left: 0;
-      background-color: rgba(0, 0, 0, 0.9);  /* Dark background with higher opacity */
+      background-color: rgba(0, 0, 0, 0.9);
       overflow-x: hidden;
       padding-top: 60px;
       transition: width 0.5s ease;
+      box-shadow: 4px 0 6px rgba(0, 0, 0, 0.2);
     }
 
     .sidemenu a {
@@ -48,18 +58,20 @@
       font-size: 18px;
       color: white;
       display: block;
-      transition: 0.2s;
+      transition: 0.3s;
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .sidemenu a:hover {
-      background-color: #007bff;
+      background-color: #0056b3;
     }
 
     .main-content {
-      padding: 20px;
+      padding: 40px 20px;
       text-align: center;
       transition: filter 0.3s ease;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .closebtn {
@@ -71,9 +83,50 @@
       color: white;
     }
 
-    /* Apply blur only to the main content */
     body.menu-open .main-content {
       filter: blur(4px);
+    }
+
+    h2 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .nav-back {
+      margin-top: 20px;
+    }
+
+    .nav-back a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    /* Mobile responsive styling */
+    @media (max-width: 600px) {
+      .topbar {
+        font-size: 18px;
+        padding: 12px;
+      }
+
+      .sidemenu a {
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
@@ -81,35 +134,39 @@
 
 <div class="topbar">
   <span class="menu-icon" onclick="openMenu()">☰</span>
-  Cell Counter
+  <span>Cell Counter</span>
 </div>
 
 <!-- Side Menu -->
 <div id="sideMenu" class="sidemenu">
   <span class="closebtn" onclick="closeMenu()">×</span>
-  <a href="wbc_counter.html"> WBC Differential</a>
-  <a href="bone_marrow.html"> Bone Marrow Counter</a>
-  <a href="platelet_counter.html"> Platelet Counter</a>
-  <a href="retic_counter.html"> Retic Counter</a>
+  <a href="wbc_counter.html">WBC Differential</a>
+  <a href="bone_marrow.html">Bone Marrow Counter</a>
+  <a href="platelet_counter.html">Platelet Counter</a>
+  <a href="retic_counter.html">Retic Counter</a>
 </div>
 
+<!-- Main Content Area -->
 <div class="main-content">
   <h2>Welcome to Hematology Cell Counter</h2>
-  <p>Select a counter from the menu.</p>
+  <p>Select a counter from the menu to begin.</p>
+  <div class="nav-back">
+    <a href="./index.html">Back to Menu</a>
+  </div>
 </div>
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").style.width = "250px"; // Slide in side menu
-    document.body.classList.add('menu-open');  // Add blur effect to background
+    document.getElementById("sideMenu").style.width = "250px";
+    document.body.classList.add('menu-open');
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").style.width = "0"; // Slide out side menu
-    document.body.classList.remove('menu-open'); // Remove blur effect
+    document.getElementById("sideMenu").style.width = "0";
+    document.body.classList.remove('menu-open');
   }
 
-  // Ensure service worker registration after page load
+  // Service Worker registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/service-worker.js')
