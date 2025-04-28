@@ -7,8 +7,8 @@
   <style>
     /* Global styles */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9; /* Light background for professional feel */
       padding: 20px;
       margin: 0;
       color: #333;
@@ -16,7 +16,8 @@
 
     h2 {
       text-align: center;
-      font-size: 24px;
+      font-size: 26px;
+      color: #007bff; /* Button-like header */
       margin-bottom: 20px;
     }
 
@@ -25,47 +26,59 @@
       text-align: center;
       margin-bottom: 20px;
       color: #555;
+      font-weight: bold;
     }
 
-    .counter-card {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
+    .counter-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin: 20px auto;
       max-width: 600px;
-      margin: 0 auto;
+      background-color: #fff; /* White background for clean look */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .cell-counter {
       text-align: center;
     }
 
     .cell-image {
       display: block;
-      width: 150px;
+      width: 150px;   /* Adjusted image size */
       height: auto;
-      margin: 0 auto 20px;
+      margin: 0 auto; /* Center the image horizontally */
       cursor: pointer;
+      margin-bottom: 20px; /* Adds space below the image */
     }
 
     label, p {
       font-size: 18px;
+      display: block;
       margin: 10px 0;
+      font-weight: 600;
     }
 
-    input, select, button {
+    input[type="number"], button {
       font-size: 16px;
-      padding: 10px;
+      padding: 12px;
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
       margin: 10px auto;
       border-radius: 8px;
       border: 1px solid #ccc;
       display: block;
       box-sizing: border-box;
+      transition: all 0.3s ease;
     }
 
     button {
       background-color: #007bff;
       color: white;
       cursor: pointer;
+      font-weight: bold;
     }
 
     button:hover {
@@ -77,6 +90,7 @@
       font-weight: bold;
       font-size: 20px;
       color: #333;
+      text-align: center;
     }
 
     .nav-back {
@@ -88,6 +102,7 @@
       text-decoration: none;
       color: #007bff;
       font-weight: bold;
+      font-size: 16px;
     }
 
     /* Media Query for Small Screens */
@@ -112,10 +127,10 @@
 
 <!-- Normal Range Display -->
 <div class="normal-range">
-  <p><strong>Normal Reference Range for Reticulocytes:</strong> 0.5% – 2.5% of total RBC count</p>
+  <p>Normal Reticulocyte Count: 0.5% - 2.5% of total RBC count</p>
 </div>
 
-<div class="counter-card">
+<div class="counter-grid">
   <!-- Image for Reticulocytes -->
   <img src="images/reticulocyte.png" alt="Reticulocyte Image" class="cell-image">
   
@@ -129,7 +144,7 @@
 
 <!-- Result Section -->
 <div id="result" class="result" style="display:none;">
-  <p id="finalCount">Reticulocyte Percentage: </p>
+  <p id="reticulocyteCount">Reticulocyte Percentage: </p>
 </div>
 
 <!-- Back Navigation Link -->
@@ -145,12 +160,13 @@
     }
 
     let reticulocytesFloat = parseFloat(reticulocytes);
-
+    
     if (isNaN(reticulocytesFloat) || reticulocytesFloat < 0) {
       alert("Please enter a valid number for reticulocytes per 1000 RBCs.");
       return;
     }
 
+    // Apply the 1000 limit if necessary
     if (reticulocytesFloat > 1000) {
       alert("The number of reticulocytes per 1000 RBCs cannot exceed 1000. The value will be capped at 1000.");
       reticulocytesFloat = 1000;
@@ -160,7 +176,7 @@
     const reticulocytePercentage = (reticulocytesFloat / 1000) * 100;
 
     // Display the result
-    document.getElementById("finalCount").innerText = `Reticulocyte Percentage: ${reticulocytePercentage.toFixed(2)}%`;
+    document.getElementById("reticulocyteCount").innerText = `Reticulocyte Percentage: ${reticulocytePercentage.toFixed(2)}%`;
     document.getElementById("result").style.display = "block";
   }
 </script>
