@@ -198,7 +198,9 @@
   const el = document.getElementById(cellType);
   el.innerText = parseInt(el.innerText) + 1;
   document.getElementById('totalCount').innerText = getTotalCount();
-  triggerHapticFeedback();  // Add this line
+  if ('vibrate' in navigator) {
+    navigator.vibrate(50); // Adjust the vibration intensity/duration if necessary
+  }
 }
 
     function getTotalCount() {
