@@ -10,7 +10,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      overflow-x: hidden; /* Prevents horizontal scrolling */
+      overflow-x: hidden;
     }
 
     .topbar {
@@ -35,11 +35,10 @@
       z-index: 1;
       top: 0;
       left: 0;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: rgba(0, 0, 0, 0.8);
       overflow-x: hidden;
       padding-top: 60px;
-      backdrop-filter: blur(10px);
-      transition: none; /* Remove transition to avoid decompress effect */
+      transition: width 0.5s ease; /* Smooth sliding effect */
     }
 
     .sidemenu a {
@@ -69,23 +68,6 @@
       cursor: pointer;
       color: white;
     }
-
-    /* Adding smooth animation for sliding in and out */
-    .sidemenu a {
-      opacity: 0;
-      animation: slideIn 0.3s forwards;
-    }
-
-    @keyframes slideIn {
-      0% {
-        opacity: 0;
-        transform: translateX(-50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
   </style>
 </head>
 <body>
@@ -111,13 +93,13 @@
 
 <script>
   function openMenu() {
-    document.getElementById("sideMenu").style.width = "250px"; // Instantly open
-    document.body.style.overflow = "hidden";  // Prevent scroll when menu is open
+    document.getElementById("sideMenu").style.width = "250px"; // Smoothly open the side menu
+    document.body.style.overflow = "hidden";  // Prevent scrolling when menu is open
   }
 
   function closeMenu() {
-    document.getElementById("sideMenu").style.width = "0";  // Instantly close
-    document.body.style.overflow = "auto";  // Restore scroll when menu is closed
+    document.getElementById("sideMenu").style.width = "0";  // Close the side menu
+    document.body.style.overflow = "auto";  // Enable scrolling when menu is closed
   }
 
   // Ensure service worker registration after page load
