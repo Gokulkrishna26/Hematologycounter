@@ -43,6 +43,10 @@
       margin-top: 4px;
     }
 
+    .normal-range.show {
+      display: block;
+    }
+
     .button-row, .nav-back {
       text-align: center;
       margin: 20px 0;
@@ -304,6 +308,13 @@
     }
 
     progressText.innerText = `${percentage.toFixed(0)}%`;
+  }
+
+  function toggleNormalValues() {
+    const normalRanges = document.querySelectorAll('.normal-range');
+    normalRanges.forEach(range => {
+      range.classList.toggle('show');
+    });
   }
 
   window.onload = function () {
