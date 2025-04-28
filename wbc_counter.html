@@ -10,18 +10,15 @@
       padding: 10px;
       background: #f9f9f9;
     }
-
     h2, p {
       text-align: center;
     }
-
     .counter-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 20px;
       margin: 20px 0;
     }
-
     .cell-counter {
       text-align: center;
       background: white;
@@ -29,29 +26,24 @@
       border-radius: 8px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
-
     .cell-image {
       width: 80px;
       height: auto;
       cursor: pointer;
     }
-
     .normal-range {
       display: none;
       font-size: 12px;
       color: gray;
       margin-top: 4px;
     }
-
     .normal-range.show {
       display: block;
     }
-
     .button-row, .nav-back {
       text-align: center;
       margin: 20px 0;
     }
-
     button {
       padding: 10px 20px;
       font-size: 14px;
@@ -62,43 +54,35 @@
       border: none;
       border-radius: 5px;
     }
-
     .button-row button:hover {
       background-color: #0056b3;
     }
-
     .total-count-display {
       text-align: center;
       font-size: 18px;
       margin-top: 10px;
       font-weight: bold;
     }
-
     .nav-back a {
       text-decoration: none;
       color: #007bff;
       font-weight: bold;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-
     table, th, td {
       border: 1px solid #ddd;
     }
-
     th, td {
       padding: 10px;
       text-align: center;
     }
-
     th {
       background-color: #f2f2f2;
     }
-
     /* Progress Bar */
     #progressBarContainer {
       width: 100%;
@@ -107,7 +91,6 @@
       border-radius: 10px;
       position: relative;
     }
-
     #progressBar {
       height: 100%;
       width: 0%;
@@ -115,7 +98,6 @@
       border-radius: 10px;
       transition: width 0.5s ease;
     }
-
     #progressText {
       position: absolute;
       top: 0;
@@ -124,29 +106,24 @@
       color: white;
       font-weight: bold;
     }
-
     /* Responsive Design for Mobile */
     @media (max-width: 768px) {
       .cell-counter {
         padding: 15px;
         font-size: 14px;
       }
-
       button {
         padding: 8px 16px;
         font-size: 12px;
       }
-
       .cell-image {
         width: 70px;
       }
     }
-
     @media (max-width: 480px) {
       .total-count-display {
         font-size: 16px;
       }
-
       button {
         width: 100%;
         margin: 5px 0;
@@ -195,24 +172,24 @@
 
 <script>
   const cellTypes = {
-    neutrophil: "Neutrophil",
-    eosinophil: "Eosinophil",
-    basophil: "Basophil",
-    lymphocyte: "Lymphocyte",
-    monocyte: "Monocyte",
-    others: "Others"
+    neutrophil: { name: "Neutrophil", range: "40-80%" },
+    eosinophil: { name: "Eosinophil", range: "1-6%" },
+    basophil: { name: "Basophil", range: "0-1%" },
+    lymphocyte: { name: "Lymphocyte", range: "20-40%" },
+    monocyte: { name: "Monocyte", range: "2-10%" },
+    others: { name: "Others", range: "No reference" }
   };
 
   function createCounters() {
     const grid = document.getElementById("counterGrid");
     for (const key in cellTypes) {
-        const cellName = cellTypes[key];
+        const cell = cellTypes[key];
         const div = document.createElement("div");
         div.className = "cell-counter";
         div.innerHTML = `
-        <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" class="cell-image">
-        <p>${cellName}: <span id="${key}">0</span></p>
-        <div class="normal-range">Normal range not defined</div>
+        <img src="images/${key}.png" alt="${cell.name}" onclick="increment('${key}')" class="cell-image">
+        <p>${cell.name}: <span id="${key}">0</span></p>
+        <div class="normal-range">Normal range: ${cell.range}</div>
       `;
         grid.appendChild(div);
     }
@@ -265,7 +242,7 @@
     for (const cell in cellTypes) {
         const count = parseInt(document.getElementById(cell).innerText);
         const percent = ((count / total) * 100).toFixed(2);
-        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+        resultHTML += `<tr><td>${cellTypes[cell].name}</td><td>${count}</td><td>${percent}%</td></tr>`;
     }
 
     resultHTML += "</table>";
@@ -284,7 +261,7 @@
     for (const cell in cellTypes) {
         const count = parseInt(document.getElementById(cell).innerText);
         const percent = ((count / total) * 100).toFixed(2);
-        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+        doc.text(`${cellTypes[cell].name}: ${count} (${percent}%)`, 10, y);
         y += 10;
     }
 
@@ -322,4 +299,3 @@
   };
 </script>
 </body>
-</html>
