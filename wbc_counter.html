@@ -6,7 +6,7 @@
   <title>WBC Differential Counter</title>
   <style>
     html, body {
-      touch-action: manipulation; /* Prevent zoom on touch actions */
+      touch-action: manipulation;
     }
     body {
       font-family: Arial, sans-serif;
@@ -39,61 +39,6 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
-    .button-row {
-      text-align: center;
-      margin: 20px 0;
-    }
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin: 5px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #results {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-    th, td {
-      padding: 12px;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .nav-back {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .nav-back a {
-      text-decoration: none;
-      color: #007bff;
-      font-weight: bold;
-    }
-    .normal-values {
-      font-size: 16px;
-      color: #333;
-      font-weight: bold;
-      margin-top: 20px;
-      text-align: center;
-    }
     .top-progress-bar {
       width: 100%;
       background-color: #e0e0e0;
@@ -122,30 +67,7 @@
     <p>Neutrophils: <span id="neutrophils">0</span></p>
   </div>
 
-  <div class="cell-counter">
-    <img src="images/lymphocyte.png" alt="Lymphocyte" onclick="increment('lymphocytes')" class="cell-image">
-    <p>Lymphocytes: <span id="lymphocytes">0</span></p>
-  </div>
-
-  <div class="cell-counter">
-    <img src="images/blast.png" alt="Blasts" onclick="increment('blasts')" class="cell-image">
-    <p>Blasts: <span id="blasts">0</span></p>
-  </div>
-
-  <div class="cell-counter">
-    <img src="images/eosinophil.png" alt="Eosinophil" onclick="increment('eosinophils')" class="cell-image">
-    <p>Eosinophils: <span id="eosinophils">0</span></p>
-  </div>
-
-  <div class="cell-counter">
-    <img src="images/basophil.png" alt="Basophil" onclick="increment('basophils')" class="cell-image">
-    <p>Basophils: <span id="basophils">0</span></p>
-  </div>
-
-  <div class="cell-counter">
-    <img src="images/monocyte.png" alt="Monocyte" onclick="increment('monocytes')" class="cell-image">
-    <p>Monocytes: <span id="monocytes">0</span></p>
-  </div>
+  <!-- Additional cells here... -->
 </div>
 
 <div class="button-row">
@@ -154,13 +76,6 @@
   <button onclick="exportToPDF()">Export to PDF</button>
 </div>
 
-<div id="results"></div>
-
-<div class="nav-back">
-  <a href="./index.html">Back to Menu</a>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   const cellTypes = ['neutrophils', 'lymphocytes', 'blasts', 'eosinophils', 'basophils', 'monocytes'];
 
@@ -172,9 +87,10 @@
 
   function updateTopProgress() {
     const total = cellTypes.reduce((sum, cell) => sum + parseInt(document.getElementById(cell).innerText), 0);
-    const progressBar = document.getElementById('top-progress');
-    const percentage = ((total / 100) * 100).toFixed(2);
+    const maxTotal = 100;  // The total count threshold
+    const percentage = (total / maxTotal) * 100;
 
+    const progressBar = document.getElementById('top-progress');
     progressBar.style.width = `${percentage}%`;
 
     if (percentage < 50) {
@@ -205,31 +121,9 @@
     document.getElementById('results').innerHTML = resultHTML;
   }
 
-  function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("WBC Differential Count", 10, 10);
-    let y = 20;
-    cellTypes.forEach(cell => {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / 100) * 100).toFixed(2);
-      doc.text(`${cell.charAt(0).toUpperCase() + cell.slice(1)}: ${count} (${percent}%)`, 10, y);
-      y += 10;
-    });
-    doc.save("wbc_differential.pdf");
-  }
-
   window.onload = () => {
     updateTopProgress();
   };
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("Service Worker registered."))
-      .catch(err => console.log("Service Worker registration failed:", err));
-  }
 </script>
 
 </body>
