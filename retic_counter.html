@@ -8,7 +8,7 @@
     /* Global styles */
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff;
+      background-color: #f4f7fc;
       padding: 20px;
       margin: 0;
       color: #333;
@@ -27,30 +27,25 @@
       color: #555;
     }
 
-    .counter-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-      margin: 20px auto;
+    .counter-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
       max-width: 600px;
-    }
-
-    .cell-counter {
+      margin: 0 auto;
       text-align: center;
     }
 
     .cell-image {
-      display: block;
       width: 150px;
       height: auto;
-      margin: 0 auto;
+      margin: 0 auto 20px;
       cursor: pointer;
-      margin-bottom: 20px;
     }
 
     label, p {
       font-size: 18px;
-      display: block;
       margin: 10px 0;
     }
 
@@ -81,7 +76,6 @@
       font-weight: bold;
       font-size: 20px;
       color: #333;
-      text-align: center;
     }
 
     .nav-back {
@@ -93,7 +87,6 @@
       text-decoration: none;
       color: #007bff;
       font-weight: bold;
-      font-size: 16px;
     }
 
     /* Media Query for Small Screens */
@@ -121,7 +114,7 @@
   <p><strong>Normal Reference Range for Reticulocytes:</strong> 0.5% – 2.5% of total RBC count</p>
 </div>
 
-<div class="counter-grid">
+<div class="counter-card">
   <!-- Image for Reticulocytes -->
   <img src="images/reticulocyte.png" alt="Reticulocyte Image" class="cell-image">
   
