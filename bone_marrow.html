@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Bone Marrow Counter</title>
   <style>
+    /* Styling for page */
     body {
       font-family: Arial, sans-serif;
       padding: 10px;
@@ -95,7 +96,6 @@
       background-color: #f2f2f2;
     }
 
-    /* Responsive Design for Mobile */
     @media (max-width: 768px) {
       .cell-counter {
         padding: 15px;
@@ -122,11 +122,10 @@
         margin: 5px 0;
       }
       html, body {
-  touch-action: manipulation; /* Prevent zoom on touch actions */
+  touch-action: manipulation;
 }
     }
 
-    /* Progress Bar */
     #progressBarContainer {
       width: 100%;
       background-color: #f3f3f3;
@@ -184,7 +183,6 @@
 
 <div class="nav-back"><a href="./index.html">Back to Menu</a></div>
 
-<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/haptics.js/1.1.1/haptics.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -214,6 +212,7 @@
   const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
   let longPressTimer;
+  let lastCounts = [];  // Track last counts for undo
 
   function createCounters() {
     const grid = document.getElementById("counterGrid");
@@ -236,26 +235,52 @@
         alert("You have reached the total limit of 500 cells.");
         return;
     }
+
+    // Save current count before incrementing for undo
+    saveLastCounts();
+
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
     document.getElementById('totalCount').innerText = getTotalCount();
-    updateProgressBar(); // Update progress bar
-    hapticFeedback(); // Trigger haptic feedback on cell press
+    updateProgressBar();
+    hapticFeedback();
+  }
+
+  function saveLastCounts() {
+    const currentCounts = {};
+    for (const cell in cellTypes) {
+        currentCounts[cell] = parseInt(document.getElementById(cell).innerText);
+    }
+    lastCounts.push(currentCounts);  // Save last state before action
+  }
+
+  function undoLastCount() {
+    if (lastCounts.length === 0) {
+        alert("No previous count to undo.");
+        return;
+    }
+
+    const lastCount = lastCounts.pop();  // Get last saved state
+    for (const cell in lastCount) {
+        document.getElementById(cell).innerText = lastCount[cell];  // Revert to last state
+    }
+    document.getElementById('totalCount').innerText = getTotalCount();  // Update total count
+    updateProgressBar();
   }
 
   function startLongPress(cellType) {
     longPressTimer = setTimeout(() => {
-      increment(cellType);  // Increment count after long press
+      increment(cellType);
     }, 1000);  // Trigger after 1 second
   }
 
   function clearLongPress() {
-    clearTimeout(longPressTimer);  // Prevent long press if released early
+    clearTimeout(longPressTimer);
   }
 
   function hapticFeedback() {
     if (navigator.vibrate) {
-        navigator.vibrate(50); // Short vibration
+        navigator.vibrate(50);
     }
   }
 
@@ -271,7 +296,8 @@
     }
     document.getElementById('results').innerHTML = '';
     document.getElementById('totalCount').innerText = '0';
-    updateProgressBar(); // Reset progress bar
+    updateProgressBar();
+    lastCounts = [];  // Clear undo history
   }
 
   function calculatePercentages() {
