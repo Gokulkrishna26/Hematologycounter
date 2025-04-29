@@ -168,7 +168,6 @@
 
 <div class="button-row">
   <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
-  <button onclick="undo()">Undo Last Count</button> <!-- Added Undo Button -->
 </div>
 
 <div class="counter-grid" id="counterGrid">
@@ -214,7 +213,7 @@
   const erythroidCells = ['erythroblast', 'dyserythroblast'];
   const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
-  let cellHistory = [];  // Track previous counts for undo
+  let longPressTimer;
 
   function createCounters() {
     const grid = document.getElementById("counterGrid");
@@ -223,8 +222,7 @@
         const div = document.createElement("div");
         div.className = "cell-counter";
         div.innerHTML = `
-        <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" 
-             class="cell-image" oncontextmenu="startLongPress('${key}'); return false">
+        <img src="images/${key}.png" alt="${cellName}" class="cell-image" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')" onmouseup="clearLongPress()" ontouchend="clearLongPress()">
         <p>${cellName}: <span id="${key}">0</span></p>
         <div class="normal-range">Normal range not defined</div>
       `;
@@ -242,39 +240,17 @@
     el.innerText = parseInt(el.innerText) + 1;
     document.getElementById('totalCount').innerText = getTotalCount();
     updateProgressBar(); // Update progress bar
-    saveHistory(); // Save history for undo
     hapticFeedback(); // Trigger haptic feedback on cell press
   }
 
-  function saveHistory() {
-    let history = {};
-    for (const cell in cellTypes) {
-        history[cell] = document.getElementById(cell).innerText;
-    }
-    cellHistory.push(history);
-  }
-
-  function undo() {
-    if (cellHistory.length > 0) {
-        const lastState = cellHistory.pop();
-        for (const cell in cellTypes) {
-            document.getElementById(cell).innerText = lastState[cell];
-        }
-        document.getElementById('totalCount').innerText = getTotalCount();
-        updateProgressBar();
-    } else {
-        alert("No action to undo.");
-    }
-  }
-
   function startLongPress(cellType) {
-    pressTimer = setTimeout(() => {
-        let newCount = prompt(`Enter new count for ${cellTypes[cellType]}:`, document.getElementById(cellType).innerText);
-        if (newCount !== null) {
-            document.getElementById(cellType).innerText = newCount;
-            saveHistory();
-        }
-    }, 1000);  // Long press duration (1 second)
+    longPressTimer = setTimeout(() => {
+      increment(cellType);  // Increment count after long press
+    }, 1000);  // Trigger after 1 second
+  }
+
+  function clearLongPress() {
+    clearTimeout(longPressTimer);  // Prevent long press if released early
   }
 
   function hapticFeedback() {
