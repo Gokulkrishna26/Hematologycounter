@@ -141,7 +141,6 @@
     }
   </style>
 </head>
-
 <body>
 
 <h2>WBC Counter</h2>
@@ -160,6 +159,7 @@
 <div class="counter-grid" id="counterGrid"></div>
 
 <div class="button-row">
+  <button onclick="undoLastCount()">Undo Last Count</button>
   <button onclick="resetCounts()">Reset</button>
   <button onclick="calculatePercentages()">Calculate</button>
   <button onclick="analyzeDiagnosis()">Analyze Diagnosis</button>
@@ -182,6 +182,8 @@ const cellTypes = {
   monocyte: { name: "Monocyte", range: "2-10%" },
   others: { name: "Others", range: "No reference" }
 };
+
+let countHistory = [];
 
 function createCounters() {
   const grid = document.getElementById("counterGrid");
@@ -206,6 +208,22 @@ function increment(cellType) {
   }
   const el = document.getElementById(cellType);
   el.innerText = parseInt(el.innerText) + 1;
+  countHistory.push(cellType);
+  document.getElementById('totalCount').innerText = getTotalCount();
+  updateProgressBar();
+}
+
+function undoLastCount() {
+  if (countHistory.length === 0) {
+    alert("No actions to undo.");
+    return;
+  }
+  const lastCell = countHistory.pop();
+  const el = document.getElementById(lastCell);
+  const currentValue = parseInt(el.innerText);
+  if (currentValue > 0) {
+    el.innerText = currentValue - 1;
+  }
   document.getElementById('totalCount').innerText = getTotalCount();
   updateProgressBar();
 }
@@ -220,6 +238,7 @@ function resetCounts() {
   for (const cell in cellTypes) {
     document.getElementById(cell).innerText = '0';
   }
+  countHistory = [];
   document.getElementById('results').innerHTML = '';
   document.getElementById('diagnosis').innerHTML = '';
   document.getElementById('totalCount').innerText = '0';
@@ -287,7 +306,6 @@ function toggleNormalValues() {
   normalRanges.forEach(range => range.classList.toggle('show'));
 }
 
-// AI DIAGNOSIS LOGIC
 function analyzeDiagnosis() {
   const total = getTotalCount();
   if (total === 0) {
@@ -307,28 +325,26 @@ function analyzeDiagnosis() {
     diagnosisText += "<li><strong>Neutrophilia:</strong> Suggestive of bacterial infection, stress, or inflammation.</li>";
   }
   if (percentages.lymphocyte > 40) {
-    diagnosisText += "<li><strong>Lymphocytosis:</strong> Possible viral infections (e.g., EBV, CMV) or chronic lymphocytic leukemia.</li>";
+    diagnosisText += "<li><strong>Lymphocytosis:</strong> Possible viral infections or CLL.</li>";
   }
   if (percentages.eosinophil > 6) {
-    diagnosisText += "<li><strong>Eosinophilia:</strong> Allergies, parasitic infections, or eosinophilic disorders.</li>";
+    diagnosisText += "<li><strong>Eosinophilia:</strong> Allergy, parasites, or eosinophilic disorders.</li>";
   }
   if (percentages.monocyte > 10) {
-    diagnosisText += "<li><strong>Monocytosis:</strong> Chronic infections (e.g., tuberculosis), autoimmune diseases, or monocytic leukemias.</li>";
+    diagnosisText += "<li><strong>Monocytosis:</strong> TB, autoimmune disease, or monocytic leukemia.</li>";
   }
   if (percentages.basophil > 1) {
-    diagnosisText += "<li><strong>Basophilia:</strong> Possible myeloproliferative neoplasms like CML or allergic responses.</li>";
+    diagnosisText += "<li><strong>Basophilia:</strong> MPNs like CML or allergy.</li>";
   }
   if (diagnosisText === "<h3>AI-Based Provisional Diagnosis</h3><ul>") {
     diagnosisText += "<li>WBC differential appears within normal range.</li>";
   }
-  diagnosisText += "</ul>";
 
+  diagnosisText += "</ul>";
   document.getElementById('diagnosis').innerHTML = diagnosisText;
 }
 
-window.onload = function () {
-  createCounters();
-};
+window.onload = createCounters;
 </script>
 
 </body>
