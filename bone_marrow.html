@@ -213,92 +213,89 @@
   const erythroidCells = ['erythroblast', 'dyserythroblast'];
   const myeloidCells = ['myeloblast', 'promyelocyte', 'myelocyte', 'metamyelocyte', 'band', 'neutrophil', 'eosinophil', 'basophil', 'monoblast', 'monocyte'];
 
-  let lastIncremented = null;
+  const cellHistory = [];
 
   function createCounters() {
     const grid = document.getElementById("counterGrid");
     for (const key in cellTypes) {
-      const cellName = cellTypes[key];
-      const div = document.createElement("div");
-      div.className = "cell-counter";
-      div.innerHTML = `
-        <img src="images/${key}.png" alt="${cellName}" id="img-${key}" class="cell-image" onclick="increment('${key}')">
+        const cellName = cellTypes[key];
+        const div = document.createElement("div");
+        div.className = "cell-counter";
+        div.innerHTML = `
+        <img src="images/${key}.png" alt="${cellName}" onclick="increment('${key}')" 
+        oncontextmenu="incrementWithInput('${key}'); return false;" class="cell-image">
         <p>${cellName}: <span id="${key}">0</span></p>
         <div class="normal-range">Normal range not defined</div>
       `;
-      grid.appendChild(div);
-
-      const img = div.querySelector(`#img-${key}`);
-      let pressTimer;
-      img.addEventListener("mousedown", () => {
-        pressTimer = setTimeout(() => {
-          let newValue = prompt("Enter new count for " + cellTypes[key] + ":");
-          if (newValue !== null && !isNaN(newValue) && parseInt(newValue) >= 0) {
-            document.getElementById(key).innerText = parseInt(newValue);
-            document.getElementById('totalCount').innerText = getTotalCount();
-            updateProgressBar();
-          }
-        }, 600); // Long press delay (600ms)
-      });
-      img.addEventListener("mouseup", () => clearTimeout(pressTimer));
-      img.addEventListener("mouseleave", () => clearTimeout(pressTimer));
+        grid.appendChild(div);
     }
   }
 
   function increment(cellType) {
     const total = getTotalCount();
     if (total >= 500) {
-      alert("You have reached the total limit of 500 cells.");
-      return;
+        alert("You have reached the total limit of 500 cells.");
+        return;
     }
     const el = document.getElementById(cellType);
     el.innerText = parseInt(el.innerText) + 1;
-    lastIncremented = cellType;
     document.getElementById('totalCount').innerText = getTotalCount();
     updateProgressBar();
     hapticFeedback();
+    cellHistory.push({action: 'increment', cellType: cellType});
+  }
+
+  function incrementWithInput(cellType) {
+    const count = prompt("Enter the number of cells for " + cellTypes[cellType]);
+    if (count && !isNaN(count) && count > 0) {
+      const el = document.getElementById(cellType);
+      el.innerText = parseInt(el.innerText) + parseInt(count);
+      document.getElementById('totalCount').innerText = getTotalCount();
+      updateProgressBar();
+      hapticFeedback();
+      cellHistory.push({action: 'increment', cellType: cellType, count: count});
+    }
   }
 
   function undoLastCount() {
-    if (!lastIncremented) {
-      alert("Nothing to undo.");
-      return;
-    }
-    const el = document.getElementById(lastIncremented);
-    let count = parseInt(el.innerText);
-    if (count > 0) {
-      el.innerText = count - 1;
-      document.getElementById('totalCount').innerText = getTotalCount();
-      updateProgressBar();
-      lastIncremented = null;
+    if (cellHistory.length > 0) {
+        const lastAction = cellHistory.pop();
+        if (lastAction.action === 'increment') {
+            const el = document.getElementById(lastAction.cellType);
+            el.innerText = Math.max(0, parseInt(el.innerText) - 1);
+            document.getElementById('totalCount').innerText = getTotalCount();
+            updateProgressBar();
+        }
     }
   }
 
   function hapticFeedback() {
-    if (navigator.vibrate) navigator.vibrate(50);
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
   }
 
   function getTotalCount() {
     return Object.keys(cellTypes).reduce((sum, cell) => {
-      return sum + parseInt(document.getElementById(cell).innerText);
+        return sum + parseInt(document.getElementById(cell).innerText);
     }, 0);
   }
 
   function resetCounts() {
     for (const cell in cellTypes) {
-      document.getElementById(cell).innerText = '0';
+        document.getElementById(cell).innerText = '0';
     }
     document.getElementById('results').innerHTML = '';
     document.getElementById('totalCount').innerText = '0';
     updateProgressBar();
-    lastIncremented = null;
+    cellHistory.length = 0;
   }
 
   function calculatePercentages() {
     const total = getTotalCount();
     if (total === 0) {
-      alert("No cells counted.");
-      return;
+        alert("No cells counted.");
+        return;
     }
 
     let resultHTML = "<h3>Bone Marrow Differential (Normalized to 100%)</h3>";
@@ -308,11 +305,11 @@
     let myeloidCount = 0;
 
     for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
-      if (erythroidCells.includes(cell)) erythroidCount += count;
-      if (myeloidCells.includes(cell)) myeloidCount += count;
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        resultHTML += `<tr><td>${cellTypes[cell]}</td><td>${count}</td><td>${percent}%</td></tr>`;
+        if (erythroidCells.includes(cell)) erythroidCount += count;
+        if (myeloidCells.includes(cell)) myeloidCount += count;
     }
 
     resultHTML += "</table><br>";
@@ -334,19 +331,19 @@
     let erythroid = 0, myeloid = 0;
 
     for (const cell in cellTypes) {
-      const count = parseInt(document.getElementById(cell).innerText);
-      const percent = ((count / total) * 100).toFixed(2);
-      doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
-      y += 10;
-      if (erythroidCells.includes(cell)) erythroid += count;
-      if (myeloidCells.includes(cell)) myeloid += count;
+        const count = parseInt(document.getElementById(cell).innerText);
+        const percent = ((count / total) * 100).toFixed(2);
+        doc.text(`${cellTypes[cell]}: ${count} (${percent}%)`, 10, y);
+        y += 10;
+        if (erythroidCells.includes(cell)) erythroid += count;
+        if (myeloidCells.includes(cell)) myeloid += count;
     }
 
     const ratio = erythroid === 0 ? "∞" : (myeloid / erythroid).toFixed(2);
     doc.text(`Myeloid:Erythroid Ratio: ${ratio}`, 10, y);
     y += 10;
     doc.text("Normal M:E Ratio: 2:1 to 4:1", 10, y);
-
+    
     doc.save("bone_marrow_report.pdf");
   }
 
@@ -359,11 +356,11 @@
     progressBar.style.width = `${percentage}%`;
 
     if (percentage <= 33) {
-      progressBar.style.backgroundColor = 'green';
+        progressBar.style.backgroundColor = 'green';
     } else if (percentage <= 66) {
-      progressBar.style.backgroundColor = 'yellow';
+        progressBar.style.backgroundColor = 'yellow';
     } else {
-      progressBar.style.backgroundColor = 'red';
+        progressBar.style.backgroundColor = 'red';
     }
 
     progressText.innerText = `${percentage.toFixed(0)}%`;
@@ -371,12 +368,7 @@
 
   window.onload = function () {
     createCounters();
-
-    // Add Undo Button
-    const undoBtn = document.createElement("button");
-    undoBtn.innerText = "Undo Last Count";
-    undoBtn.onclick = undoLastCount;
-    document.querySelector(".button-row").appendChild(undoBtn);
   };
-</script></body>
+</script>
+</body>
 </html>
