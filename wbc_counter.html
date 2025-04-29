@@ -53,9 +53,11 @@
       color: white;
       border: none;
       border-radius: 5px;
+      transition: background 0.3s, transform 0.2s;
     }
-    .button-row button:hover {
+    button:hover {
       background-color: #0056b3;
+      transform: scale(1.05);
     }
     .total-count-display {
       text-align: center;
@@ -83,7 +85,6 @@
     th {
       background-color: #f2f2f2;
     }
-    /* Progress Bar */
     #progressBarContainer {
       width: 100%;
       background-color: #f3f3f3;
@@ -106,7 +107,13 @@
       color: white;
       font-weight: bold;
     }
-    /* Responsive Design for Mobile */
+    #diagnosis {
+      margin-top: 20px;
+      padding: 15px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
     @media (max-width: 768px) {
       .cell-counter {
         padding: 15px;
@@ -141,7 +148,6 @@
 <p><strong>Counting Limit: 100 cells</strong></p>
 <p class="total-count-display">Total Cells: <span id="totalCount">0</span> / 100</p>
 
-<!-- Progress Bar -->
 <div id="progressBarContainer">
   <div id="progressBar"></div>
   <span id="progressText">0%</span>
@@ -151,152 +157,179 @@
   <button onclick="toggleNormalValues()">Show/Hide Normal Ranges</button>
 </div>
 
-<div class="counter-grid" id="counterGrid">
-  <!-- Cells will be inserted dynamically -->
-</div>
+<div class="counter-grid" id="counterGrid"></div>
 
 <div class="button-row">
   <button onclick="resetCounts()">Reset</button>
   <button onclick="calculatePercentages()">Calculate</button>
+  <button onclick="analyzeDiagnosis()">Analyze Diagnosis</button>
   <button onclick="exportToPDF()">Export to PDF</button>
 </div>
 
 <div id="results"></div>
+<div id="diagnosis"></div>
 
 <div class="nav-back"><a href="./index.html">Back to Menu</a></div>
 
-<!-- Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/haptics.js/1.1.1/haptics.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script>
-  const cellTypes = {
-    neutrophil: { name: "Neutrophil", range: "40-80%" },
-    eosinophil: { name: "Eosinophil", range: "1-6%" },
-    basophil: { name: "Basophil", range: "0-1%" },
-    lymphocyte: { name: "Lymphocyte", range: "20-40%" },
-    monocyte: { name: "Monocyte", range: "2-10%" },
-    others: { name: "Others", range: "No reference" }
-  };
+const cellTypes = {
+  neutrophil: { name: "Neutrophil", range: "40-80%" },
+  eosinophil: { name: "Eosinophil", range: "1-6%" },
+  basophil: { name: "Basophil", range: "0-1%" },
+  lymphocyte: { name: "Lymphocyte", range: "20-40%" },
+  monocyte: { name: "Monocyte", range: "2-10%" },
+  others: { name: "Others", range: "No reference" }
+};
 
-  function createCounters() {
-    const grid = document.getElementById("counterGrid");
-    for (const key in cellTypes) {
-        const cell = cellTypes[key];
-        const div = document.createElement("div");
-        div.className = "cell-counter";
-        div.innerHTML = `
-        <img src="images/${key}.png" alt="${cell.name}" onclick="increment('${key}')" class="cell-image">
-        <p>${cell.name}: <span id="${key}">0</span></p>
-        <div class="normal-range">Normal range: ${cell.range}</div>
-      `;
-        grid.appendChild(div);
-    }
+function createCounters() {
+  const grid = document.getElementById("counterGrid");
+  for (const key in cellTypes) {
+    const cell = cellTypes[key];
+    const div = document.createElement("div");
+    div.className = "cell-counter";
+    div.innerHTML = `
+      <img src="images/${key}.png" alt="${cell.name}" onclick="increment('${key}')" class="cell-image">
+      <p>${cell.name}: <span id="${key}">0</span></p>
+      <div class="normal-range">Normal range: ${cell.range}</div>
+    `;
+    grid.appendChild(div);
+  }
+}
+
+function increment(cellType) {
+  const total = getTotalCount();
+  if (total >= 100) {
+    alert("You have reached the total limit of 100 cells.");
+    return;
+  }
+  const el = document.getElementById(cellType);
+  el.innerText = parseInt(el.innerText) + 1;
+  document.getElementById('totalCount').innerText = getTotalCount();
+  updateProgressBar();
+}
+
+function getTotalCount() {
+  return Object.keys(cellTypes).reduce((sum, cell) => {
+    return sum + parseInt(document.getElementById(cell).innerText);
+  }, 0);
+}
+
+function resetCounts() {
+  for (const cell in cellTypes) {
+    document.getElementById(cell).innerText = '0';
+  }
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('diagnosis').innerHTML = '';
+  document.getElementById('totalCount').innerText = '0';
+  updateProgressBar();
+}
+
+function calculatePercentages() {
+  const total = getTotalCount();
+  if (total === 0) {
+    alert("No cells counted.");
+    return;
   }
 
-  function increment(cellType) {
-    const total = getTotalCount();
-    if (total >= 100) {
-        alert("You have reached the total limit of 100 cells.");
-        return;
-    }
-    const el = document.getElementById(cellType);
-    el.innerText = parseInt(el.innerText) + 1;
-    document.getElementById('totalCount').innerText = getTotalCount();
-    updateProgressBar(); // Update progress bar
-    hapticFeedback(); // Trigger haptic feedback on cell press
+  let resultHTML = "<h3>WBC Differential (Normalized to 100%)</h3>";
+  resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
+
+  for (const cell in cellTypes) {
+    const count = parseInt(document.getElementById(cell).innerText);
+    const percent = ((count / total) * 100).toFixed(2);
+    resultHTML += `<tr><td>${cellTypes[cell].name}</td><td>${count}</td><td>${percent}%</td></tr>`;
   }
 
-  function hapticFeedback() {
-    if (navigator.vibrate) {
-        navigator.vibrate(50); // Short vibration
-    }
+  resultHTML += "</table>";
+  document.getElementById('results').innerHTML = resultHTML;
+}
+
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("WBC Differential (Normalized to 100%)", 10, 10);
+
+  let y = 20;
+  const total = getTotalCount();
+
+  for (const cell in cellTypes) {
+    const count = parseInt(document.getElementById(cell).innerText);
+    const percent = ((count / total) * 100).toFixed(2);
+    doc.text(`${cellTypes[cell].name}: ${count} (${percent}%)`, 10, y);
+    y += 10;
   }
 
-  function getTotalCount() {
-    return Object.keys(cellTypes).reduce((sum, cell) => {
-        return sum + parseInt(document.getElementById(cell).innerText);
-    }, 0);
+  doc.save("wbc_report.pdf");
+}
+
+function updateProgressBar() {
+  const total = getTotalCount();
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const percentage = (total / 100) * 100;
+
+  progressBar.style.width = `${percentage}%`;
+  progressText.innerText = `${percentage.toFixed(0)}%`;
+
+  if (percentage <= 33) {
+    progressBar.style.backgroundColor = 'green';
+  } else if (percentage <= 66) {
+    progressBar.style.backgroundColor = 'yellow';
+  } else {
+    progressBar.style.backgroundColor = 'red';
+  }
+}
+
+function toggleNormalValues() {
+  const normalRanges = document.querySelectorAll('.normal-range');
+  normalRanges.forEach(range => range.classList.toggle('show'));
+}
+
+// AI DIAGNOSIS LOGIC
+function analyzeDiagnosis() {
+  const total = getTotalCount();
+  if (total === 0) {
+    alert("No cells counted.");
+    return;
   }
 
-  function resetCounts() {
-    for (const cell in cellTypes) {
-        document.getElementById(cell).innerText = '0';
-    }
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('totalCount').innerText = '0';
-    updateProgressBar(); // Reset progress bar
+  const percentages = {};
+  for (const cell in cellTypes) {
+    const count = parseInt(document.getElementById(cell).innerText);
+    percentages[cell] = (count / total) * 100;
   }
 
-  function calculatePercentages() {
-    const total = getTotalCount();
-    if (total === 0) {
-        alert("No cells counted.");
-        return;
-    }
+  let diagnosisText = "<h3>AI-Based Provisional Diagnosis</h3><ul>";
 
-    let resultHTML = "<h3>WBC Differential (Normalized to 100%)</h3>";
-    resultHTML += "<table><tr><th>Cell Type</th><th>Count</th><th>%</th></tr>";
-
-    for (const cell in cellTypes) {
-        const count = parseInt(document.getElementById(cell).innerText);
-        const percent = ((count / total) * 100).toFixed(2);
-        resultHTML += `<tr><td>${cellTypes[cell].name}</td><td>${count}</td><td>${percent}%</td></tr>`;
-    }
-
-    resultHTML += "</table>";
-
-    document.getElementById('results').innerHTML = resultHTML;
+  if (percentages.neutrophil > 80) {
+    diagnosisText += "<li><strong>Neutrophilia:</strong> Suggestive of bacterial infection, stress, or inflammation.</li>";
   }
-
-  function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("WBC Differential (Normalized to 100%)", 10, 10);
-
-    let y = 20;
-    const total = getTotalCount();
-
-    for (const cell in cellTypes) {
-        const count = parseInt(document.getElementById(cell).innerText);
-        const percent = ((count / total) * 100).toFixed(2);
-        doc.text(`${cellTypes[cell].name}: ${count} (${percent}%)`, 10, y);
-        y += 10;
-    }
-
-    doc.save("wbc_report.pdf");
+  if (percentages.lymphocyte > 40) {
+    diagnosisText += "<li><strong>Lymphocytosis:</strong> Possible viral infections (e.g., EBV, CMV) or chronic lymphocytic leukemia.</li>";
   }
-
-  function updateProgressBar() {
-    const total = getTotalCount();
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const percentage = (total / 100) * 100;
-
-    progressBar.style.width = `${percentage}%`;
-
-    if (percentage <= 33) {
-        progressBar.style.backgroundColor = 'green';
-    } else if (percentage <= 66) {
-        progressBar.style.backgroundColor = 'yellow';
-    } else {
-        progressBar.style.backgroundColor = 'red';
-    }
-
-    progressText.innerText = `${percentage.toFixed(0)}%`;
+  if (percentages.eosinophil > 6) {
+    diagnosisText += "<li><strong>Eosinophilia:</strong> Allergies, parasitic infections, or eosinophilic disorders.</li>";
   }
-
-  function toggleNormalValues() {
-    const normalRanges = document.querySelectorAll('.normal-range');
-    normalRanges.forEach(range => {
-      range.classList.toggle('show');
-    });
+  if (percentages.monocyte > 10) {
+    diagnosisText += "<li><strong>Monocytosis:</strong> Chronic infections (e.g., tuberculosis), autoimmune diseases, or monocytic leukemias.</li>";
   }
+  if (percentages.basophil > 1) {
+    diagnosisText += "<li><strong>Basophilia:</strong> Possible myeloproliferative neoplasms like CML or allergic responses.</li>";
+  }
+  if (diagnosisText === "<h3>AI-Based Provisional Diagnosis</h3><ul>") {
+    diagnosisText += "<li>WBC differential appears within normal range.</li>";
+  }
+  diagnosisText += "</ul>";
 
-  window.onload = function () {
-    createCounters();
-  };
+  document.getElementById('diagnosis').innerHTML = diagnosisText;
+}
+
+window.onload = function () {
+  createCounters();
+};
 </script>
+
 </body>
 </html>
